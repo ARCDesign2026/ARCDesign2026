@@ -175,7 +175,7 @@ DATA.doors.forEach(d=>{ const hz=dh(d); const len=hz?Math.abs(d.x2-d.x1):Math.ab
   // hinge point and direction along the wall in scene space
   const hx=-d.hinge.x, hzz=-d.hinge.y; const ox=-(d.hinge.x===d.x1&&d.hinge.y===d.y1?d.x2:d.x1), oz=-(d.hinge.x===d.x1&&d.hinge.y===d.y1?d.y2:d.y1);
   const ang=Math.atan2(-(oz-hzz),ox-hx); g.position.set(hx,0,hzz); g.rotation.y=ang; g.add(leaf);
-  leaf.rotation.y=-0.45; /* every door opens into the room behind it */ scene.add(g); });
+  leaf.rotation.y=((d.id==='d4'||d.id==='d1')?0.45:-0.45); /* every door opens into the room behind it; the top left room door hinges at the divider and swings into its room */ scene.add(g); });
 
 // pillars
 DATA.pillars.forEach(p=>{ const cx=p.x+p.width/2, cy=p.y+p.depth/2;

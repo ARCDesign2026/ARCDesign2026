@@ -61,7 +61,7 @@ def draw(ax,furn):
         hz=abs(d['y1']-d['y2'])<1e-6; hx,hy=d['hinge']['x'],d['hinge']['y']
         w=abs(d['x2']-d['x1']) if hz else abs(d['y2']-d['y1'])
         if hz: cx_,cy_=(d['x2'] if abs(hx-d['x1'])<1e-6 else d['x1']),hy; ox,oy=hx,hy+w
-        else: cx_,cy_=hx,(d['y2'] if abs(hy-d['y1'])<1e-6 else d['y1']); ox,oy=hx-w,hy
+        else: cx_,cy_=hx,(d['y2'] if abs(hy-d['y1'])<1e-6 else d['y1']); ox,oy=hx+w,hy   # user 10:42: side doors hinge at the divider and open into their rooms
         H=(MX(hx),hy); C=(MX(cx_),cy_); O=(MX(ox),oy)
         ax.plot([H[0],O[0]],[H[1],O[1]],color='#333',lw=1.4,zorder=4)
         a1=math.degrees(math.atan2(C[1]-H[1],C[0]-H[0])); a2=math.degrees(math.atan2(O[1]-H[1],O[0]-H[0]))
@@ -139,6 +139,7 @@ def dimline(ax,fig,obst,p1,p2,off,label=None,ext=True,side=None):
     place(ax,fig,label,cands,obst,color=RED,fontsize=8.5,rotation=0 if hz else 90,bbox=dict(fc='white',ec='none',pad=0.4))
     obst.append((min(a2[0],b2[0])-0.02,min(a2[1],b2[1])-0.02,max(a2[0],b2[0])+0.02,max(a2[1],b2[1])+0.02))
 
+POS={}   # label spots chosen on page 1, reused on page 2 so both pages match
 def page(pdf,furn,sub):
     fig=plt.figure(figsize=(16.54,11.69)); ax=fig.add_axes([0.03,0.1,0.94,0.8])
     ax.set_xlim(-1.3,16.6); ax.set_ylim(-2.1,9.6); ax.set_aspect('equal',adjustable='datalim'); ax.axis('off')
@@ -148,7 +149,7 @@ def page(pdf,furn,sub):
         if r['id']=='printIT': continue
         cx=MX(r['x']+r['width']/2); cy=r['y']+r['depth']/2
         cands=sorted([(cx+dx*r['width'],cy+dy*r['depth']) for dy in [i/20 for i in range(-9,10)] for dx in [i/20 for i in range(-7,8)]],key=lambda q:math.dist(q,(cx,cy)))
-        place(ax,fig,r['name'],cands,obst,fontsize=12,weight='bold',color='#1a1a1a')
+        tt=place(ax,fig,r['name'],POS.get(r['id'],cands),obst,fontsize=12,weight='bold',color='#1a1a1a'); POS.setdefault(r['id'],[tt.get_position()])
     if furn:
         s=D['sofa']
         place(ax,fig,'Sofa',[(MX(s['c']['x']+s['depth']/2),s['c']['y']+s['c']['len']/2)],obst,fontsize=8,color='#1a1a1a',rotation=90)
@@ -158,7 +159,7 @@ def page(pdf,furn,sub):
         hz=abs(d['y1']-d['y2'])<1e-6; x=MX((d['x1']+d['x2'])/2); y=(d['y1']+d['y2'])/2
         name=d['name'].replace(' (card lock)','').replace(' (locked)','')
         cands=[(x,-0.2),(x,-0.3)] if hz else [(x+1.3,y),(x+1.3,y+0.2),(x+1.3,y-0.2),(x+1.3,y+0.35),(x+1.3,y-0.35)]
-        place(ax,fig,name,cands,obst,fontsize=7.5,color='#333')
+        tt=place(ax,fig,name,POS.get(d['id'],cands),obst,fontsize=7.5,color='#333'); POS.setdefault(d['id'],[tt.get_position()])
     # measurement chains outside the building
     yb=-0.55
     for x1,x2 in ((-B,0),(0,2.399),(2.399,11.419),(11.419,W)): dimline(ax,fig,obst,(x1,0),(x2,0),yb,side=-1)
@@ -182,7 +183,7 @@ def page(pdf,furn,sub):
     c=D['cab2']; od(c['x'],c['y']-0.15,c['x']+c['width'],c['y']-0.15,-1); od(c['x']-0.15,c['y'],c['x']-0.15,c['y']+c['depth'],-1)
     fig.text(0.5,0.955,'ARC Group Hong Kong office, 5/F',fontsize=19,weight='bold',ha='center')
     fig.text(0.5,0.93,sub,fontsize=11,ha='center')
-    fig.text(0.5,0.91,'The lift lobby, the pantry and the toilets are not part of the office and are not shown.',fontsize=11,ha='center')
+    fig.text(0.5,0.91,'The lift lobby, the pantry and the toilets are not shown.',fontsize=11,ha='center')
     H=[Line2D([],[],color='black',lw=3.2,label='Office outline (white bound)'),
        Patch(fc='black',ec='black',label='Solid wall'),
        Patch(fc=GLASS,ec='black',lw=1.6,label='Glass wall or window'),

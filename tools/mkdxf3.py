@@ -57,7 +57,7 @@ for d in D['doors']:
         line(hx,hy,hx,hy+w,'DOOR'); arc(hx,hy,w,0 if sg>0 else 90,90 if sg>0 else 180,'DOOR')
     else:
         other=d['y2'] if abs(hy-d['y1'])<1e-6 else d['y1']; sg=1 if other>hy else -1
-        line(hx,hy,hx-w,hy,'DOOR'); arc(hx,hy,w,90 if sg>0 else 180,180 if sg>0 else 270,'DOOR')
+        line(hx,hy,hx+w,hy,'DOOR'); arc(hx,hy,w,0 if sg>0 else -90,90 if sg>0 else 0,'DOOR')   # opens into the room
     text(d['name'],(d['x1']+d['x2'])/2+(0 if hz else -0.25),(d['y1']+d['y2'])/2+(0.18 if hz else 0),0.07,'DOOR')
 for p in D['pillars']: pts=rect(p['x'],p['y'],p['width'],p['depth'],'PILLAR'); msp.add_hatch(color=8,dxfattribs={'layer':'PILLAR'}).paths.add_polyline_path(pts,is_closed=True)
 for k in ('cabinet','cab2'):

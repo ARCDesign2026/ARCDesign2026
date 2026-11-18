@@ -4,7 +4,7 @@ doors=[]
 for d in s['doors']:
     d=dict(d)
     if d['id']=='d1':   # user 09:55: big boardroom door 38 in wide; edge by the boardroom glass corner kept
-        d['x2']=2.399; d['x1']=round(d['x2']-38*0.0254,4); d['hinge']={'x':d['x1'],'y':0}   # right against the glass divider
+        d['x2']=2.399; d['x1']=round(d['x2']-38*0.0254,4); d['hinge']={'x':d['x2'],'y':0}   # user 10:42: hinged at the divider, opens into the boardroom   # right against the glass divider
     if d['id']=='d4':   # user 09:55: top left room door 36.8 in, hinge on the divider side
         d['y2']=round(d['y1']+36.8*0.0254,4)
     if d['id']=='d3':   # user 09:54: small boardroom door leaf 36.75 in, inside the 37.5 in opening; hinge on the divider side
