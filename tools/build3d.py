@@ -104,6 +104,7 @@ for c in chairs:
 # scale pass (user 08:58): office chairs about 0.62 m across; seat centre 0.35 m from the table edge; no chair overlaps another chair or glass
 F={o['id']:o for o in furn}
 F['dN']['cx']=round(max(F['dN']['cx'],s['gridlines']['x']['XSM']+0.03+F['dN']['w']/2),3)   # was crossing the top left room glass
+chairs.append(dict(room='securities',cx=round(F['dN']['cx']+F['dN']['w']/2+0.35,3),cy=F['dN']['cy']))   # user 16:40: the top left room desk had no chair; seat on the room side, facing the glass
 SURF=[o for o in furn if o['kind'] not in ('tvh',) and o['id']!='sv']
 def near(c):
     return min(SURF,key=lambda o:(max(abs(c['cx']-o['cx'])-o['w']/2,0)**2+max(abs(c['cy']-o['cy'])-o['d']/2,0)**2) if o['room']==c['room'] else 99)
