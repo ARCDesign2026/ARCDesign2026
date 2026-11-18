@@ -135,6 +135,10 @@ for k,o in P.items():
     objdims.append(od(o['x'],o['y']+o['depth']+0.12,o['x']+o['width'],o['y']+o['depth']+0.12,o['width']) if k=='p3' else od(o['x'],o['y']-0.15,o['x']+o['width'],o['y']-0.15,o['width']) if k!='p2' else od(o['x']+o['width']+0.15,o['y'],o['x']+o['width']+0.15,o['y']+o['depth'],o['depth']))
     if k!='p2': objdims.append(od(o['x']+o['width']+0.15,o['y'],o['x']+o['width']+0.15,o['y']+o['depth'],o['depth']))
 objdims.append(od(-BUMP,5.067+0.3,0,5.067+0.3,BUMP))
+# desk sizes (user 08:24): one desk of each group, size shown on its office-side edges
+for k in ('c1','dS','dC','dTh','dG','dN'):
+    f=[x for x in furn if x['id']==k][0]; x0,y0,x1,y1=f['cx']-f['w']/2,f['cy']-f['d']/2,f['cx']+f['w']/2,f['cy']+f['d']/2
+    objdims.append(od(x0,y0+0.08,x1,y0+0.08,f['w'])); objdims.append(od(x1-0.08,y0,x1-0.08,y1,f['d']))
 D2=[d for d in doors if d['id']=='d2'][0]
 sidePanes=[dict(a=round(D2['x1']-PANE,4),b=D2['x1']),dict(a=D2['x2'],b=round(D2['x2']+PANE,4))]
 for w in s['walls']:
