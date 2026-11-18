@@ -4,17 +4,18 @@ doors=[]
 for d in s['doors']:
     d=dict(d)
     if d['id']=='d1':   # user 09:55: big boardroom door 38 in wide; edge by the boardroom glass corner kept
-        d['x2']=min(d['x2'],2.399-0.08); d['x1']=round(d['x2']-38*0.0254,4); d['hinge']={'x':d['x1'],'y':0}
+        d['x2']=2.399; d['x1']=round(d['x2']-38*0.0254,4); d['hinge']={'x':d['x1'],'y':0}   # right against the glass divider
     if d['id']=='d4':   # user 09:55: top left room door 36.8 in, hinge on the divider side
         d['y2']=round(d['y1']+36.8*0.0254,4)
     if d['id']=='d3':   # user 09:54: small boardroom door leaf 36.75 in, inside the 37.5 in opening; hinge on the divider side
         d['y1']=round(d['y2']-36.75*0.0254,4)
     if d['id']=='d2':   # user 09:52: main door 39.3 in wide; cupboard side frame kept where it is
-        w=round(39.3*0.0254,4); d['x1']=round(d['x2']-w,4); d['hinge']={'x':d['x1'],'y':0}; d['width']=w
+        # user 10:17: front from the boardroom: wall, boardroom door, 5 in glass divider, 8 in pane, main door, 8 in pane, then the wooden slats
+        w=round(39.3*0.0254,4); d['x1']=round(2.399+5*0.0254+8*0.0254,4); d['x2']=round(d['x1']+w,4); d['hinge']={'x':d['x1'],'y':0}
     doors.append({k:d[k] for k in ('id','name','x1','y1','x2','y2','hinge')})
 cab=[o for o in s['furniture'] if o['id']=='st'][0]
 xen=s['gridlines']['x']['XEN']; xsm=s['gridlines']['x']['XSM']; PANE=round(8*0.0254,4)   # user 09:55: tall 8 in glass pane on each side of the main door
-cab=dict(x=round(xen+PANE,4),y=0,width=round(3*0.6064+1.2176+(11.75+5.45)*0.0254,4),depth=round(15*0.0254,4))  # user 09:49: entrance cupboard SLSS + 11.75 in + 5.45 in long, 15 in thick; wooden slat wall runs the whole front
+cab=dict(x=round([d for d in doors if d['id']=='d2'][0]['x2']+PANE,4),y=0,width=round(3*0.6064+1.2176+(11.75+5.45)*0.0254,4),depth=round(15*0.0254,4))  # user 09:49: entrance cupboard SLSS + 11.75 in + 5.45 in long, 15 in thick; wooden slat wall runs the whole front
 furn=f['furniture']; chairs=f['chairs']
 for o in furn:
     if o['room']=='openPlan' and o['cy']-o['d']/2 < cab['depth']+0.9 and o['cx']+o['w']/2>cab['x'] and o['cx']-o['w']/2<cab['x']+cab['width']:
@@ -62,7 +63,7 @@ pil=[o for o in s['furniture'] if o['id']=='p1'][0]
 _back=pil['y']+pil['depth']; _r=pil['x']+pil['width']
 pil.update(shape='rect',width=round(35.75*0.0254,4),depth=round(47.25*0.0254,4)); pil.update(x=round(_r-pil['width'],4),y=round(_back-pil['depth'],4))
 xbb=ey['width']; d1=[d for d in doors if d['id']=='d2'][0]
-sofa=dict(depth=0.65,a=dict(x=0,y=ey['y'],len=round(pil['y']-0.05-ey['y'],3)),b=dict(x=0,y=ey['y'],len=round(xbb+0.65,3)),c=dict(x=xbb,y=round(abs(d1['x2']-d1['x1'])*1.5,3),len=round(ey['y']-abs(d1['x2']-d1['x1'])*1.5,3)))
+sofa=dict(depth=0.65,a=dict(x=0,y=ey['y'],len=round(pil['y']-0.05-ey['y'],3)),b=dict(x=0,y=ey['y'],len=round(xbb+0.65,3)),c=dict(x=round(xbb+5*0.0254,3),y=round(abs(d1['x2']-d1['x1'])*1.5,3),len=round(ey['y']-abs(d1['x2']-d1['x1'])*1.5,3)))
 ty=ey['y']+0.65+0.15+0.35
 for o in furn:
     if o['id'] in ('et1','et2'):
@@ -76,7 +77,8 @@ walls=[dict(w) for w in s['walls']]
 for w in walls:
     if w['id']=='w6': w['x1']=-BUMP
     if w['id']=='n2': w['y1']=5.067
-    if w['id']=='n1': w['thick']=round(5*0.0254,3)   # window glass 5 in thick, outside the room line
+    if w['id']=='n1': w['thick']=round(5*0.0254,3)
+    if w['id']=='g3': w['thick']=round(5*0.0254,3)   # user 10:17: glass between the big boardroom and the open plan is 5 in thick, on the open plan side   # window glass 5 in thick, outside the room line
 walls.append(dict(id='n2b',name='External windows, big boardroom',type='window',x1=-BUMP,y1=0,x2=-BUMP,y2=5.067,thick=round(5*0.0254,3)))   # glass pane 5 in thick
 walls.append(dict(id='w6b',name='Step wall, boardroom to eating area',type='wall',x1=-BUMP,y1=5.067,x2=0,y2=5.067))
 s['walls']=walls

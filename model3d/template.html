@@ -161,6 +161,7 @@ DATA.walls.forEach(w=>run(w.x1,w.y1,w.x2,w.y2,r=>{
     if (w.type==='wall') slab(p,0.12,0,H.ceil,M.wall);
     else if (w.type==='window' && w.thick){ /* measured glass pane thickness, drawn outside the room line */ const T=w.thick; const q={...p,at:p.at+(p.at>1?T/2:-T/2)}; slab(q,T,0,H.sill,M.wall); slab(q,T,H.sill,H.winTop,M.glass,false); slab({...q},T,H.sill,H.sill+0.05,M.frame); slab(q,T,H.winTop-0.05,H.winTop,M.frame); const n=Math.max(1,Math.round(q.len/1.5)); for(let i=0;i<=n;i++){ const c=q.a+q.len*i/n; slab({...q,a:c-0.025,b:c+0.025,len:0.05,mid:c},T,H.sill,H.winTop,M.frame); } slab(q,T,H.winTop,H.ceil,M.wall); }
     else if (w.type==='window'){ const q={...p,at:p.at+(p.hz?(p.at>1?0.06:-0.06):(p.at>1?0.06:-0.06))}; slab(q,0.2,0,H.sill,M.wall); glassRun(q,H.sill,H.winTop,1.5); slab(q,0.2,H.winTop,H.ceil,M.wall); }
+    else if (w.thick){ const T=w.thick; const q={...p,at:p.at+T/2}; slab(q,0.012,0,H.ceil,M.glass,false); slab(q,T,0,0.05,M.frame); slab(q,T,H.ceil-0.05,H.ceil,M.frame); const n=Math.max(1,Math.round(q.len/1.0)); for(let i=0;i<=n;i++){ const c=q.a+q.len*i/n; slab({...q,a:c-0.025,b:c+0.025,len:0.05,mid:c},T,0,H.ceil,M.frame); } }
     else glassRun(p,0,H.ceil,1.0);
   });
   // over each door opening: glass above door height in glass walls, wall above in solid ones
@@ -206,7 +207,8 @@ DATA.furniture.forEach(f=>{ const X=-f.cx, Z=-f.cy;
     const top=new THREE.Mesh(g,M.wood); top.position.set(X,H.desk-0.04,Z); top.castShadow=top.receiveShadow=true; scene.add(top);
     [-1,1].forEach(s=>{ box(0.1,H.desk-0.04,0.5,M.leg,X,(H.desk-0.04)/2,Z+s*f.d*0.28); }); return; }
   // desks and plain tables: top plus two panel legs on the short sides
-  const top=f.room==='eating'?M.wood:(f.top==='yellow'?M.deskYellow:M.deskTop); box(f.w,0.03,f.d,top,X,H.desk-0.015,Z);
+  const top=f.room==='eating'?M.wood:(f.top==='yellow'?M.deskYellow:M.deskTop); const gap=/^c\d$/.test(f.id)?0.014:0; box(f.w-gap,0.03,f.d-gap,top,X,H.desk-0.015,Z);
+  if(gap){ /* dark seams so the 2 x 4 cluster reads as 8 separate desks */ [[f.w,0.006,0,f.d/2],[f.w,0.006,0,-f.d/2],[0.006,f.d,f.w/2,0],[0.006,f.d,-f.w/2,0]].forEach(([w,d,dx,dz])=>box(w,0.031,d,M.dark,X+dx,H.desk-0.015,Z+dz,false)); }
   const long=f.w>=f.d; [-1,1].forEach(s=>{ if(long) box(0.04,H.desk-0.03,f.d*0.85,M.leg,X+s*(f.w/2-0.05),(H.desk-0.03)/2,Z); else box(f.w*0.85,H.desk-0.03,0.04,M.leg,X,(H.desk-0.03)/2,Z+s*(f.d/2-0.05)); });
   if (f.room==='openPlan'||f.room==='securities') desks.push(f);
 });
