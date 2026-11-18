@@ -86,7 +86,7 @@ def draw(ax,furn):
         else:
             l,b,w,h=R(o['cx']-o['w']/2,o['cy']-o['d']/2,o['w'],o['d']); ax.add_patch(Rectangle((l,b),w,h,fc=c,ec='black',lw=0.9,zorder=3)); box(l,b,w,h,0.03)
     for o in D['furniture']:
-        if o['kind']=='tvh' or o['id']=='sv': continue
+        if o['kind']=='tvh' or o['id']=='sv' or kind(o) not in ('white','yellow'): continue   # only the measured desks
         tall=o['d']>o['w']*1.2
         txt=('%.3f m across'%o['w']) if o['kind']=='round' else ('%.3f x %.3f m'%((o['d'],o['w']) if tall else (o['w'],o['d'])))
         fs=7 if min(o['w'],o['d'])>0.6 else 5.5
