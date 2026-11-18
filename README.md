@@ -3,7 +3,7 @@
 This repository holds the measured floor plan of the ARC Group Hong Kong office in three forms.
 
 - `survey/arc-office-survey.html`: the measuring page. It stores each length as typed on site (inches, feet, cm and the floor tile units L and S) and works out the plan.
-- `model3d/arc-office-3d.html`: the 3D model with furniture. Open it in a browser.
+- `model3d/arc-office-3d.html`: the 3D model with furniture. Live at https://arcdesign2026.github.io/ARCDesign2026/
 - `cad/arc-hk-office.dxf`: the AutoCAD plan in metres, with measured lengths (green) and overall totals (pink). `cad/arc-hk-office-dxf-preview.png` is a picture of it.
 
 ## Units
