@@ -64,7 +64,9 @@ pil=[o for o in s['furniture'] if o['id']=='p1'][0]
 _back=pil['y']+pil['depth']; _r=pil['x']+pil['width']
 pil.update(shape='rect',width=round(35.75*0.0254,4),depth=round(47.25*0.0254,4)); pil.update(x=round(_r-pil['width'],4),y=round(_back-pil['depth'],4))
 xbb=ey['width']; d1=[d for d in doors if d['id']=='d2'][0]
-sofa=dict(depth=0.65,a=dict(x=0,y=ey['y'],len=round(pil['y']-0.05-ey['y'],3)),b=dict(x=0,y=ey['y'],len=round(xbb+0.65,3)),c=dict(x=round(xbb+5*0.0254,3),y=round(abs(d1['x2']-d1['x1'])*1.5,3),len=round(ey['y']-abs(d1['x2']-d1['x1'])*1.5,3)))
+SD=round(0.65*2/3,3)   # user 10:39: sofa 2/3 of the earlier 0.65 m depth
+sofa=dict(depth=SD,a=dict(x=0,y=ey['y'],len=round(pil['y']-0.05-ey['y'],3)),b=dict(x=0,y=ey['y'],len=round(xbb+SD,3)),c=dict(x=round(xbb+5*0.0254,3),y=round(abs(d1['x2']-d1['x1'])*1.5,3),len=round(ey['y']-abs(d1['x2']-d1['x1'])*1.5,3)))
+sofa['b']['len']=round(sofa['c']['x']+SD,3)   # user 10:40: one single sofa, the runs meet flush at the corner
 ty=ey['y']+0.65+0.15+0.35
 for o in furn:
     if o['id'] in ('et1','et2'):
@@ -149,7 +151,7 @@ for w in s['walls']:
 for c in chairs:   # keep every chair inside the window line
     if not c.get('stool'): c['cy']=round(min(c['cy'],s['gridlines']['y']['Y9']-0.3),3)
 data=dict(sidePanes=sidePanes,objdims=objdims,cab2=cab2,bump=dict(x=-BUMP,y=0,w=BUMP,d=5.067),sofa=sofa,width=s['gridlines']['x']['X9'],depth=s['gridlines']['y']['Y9'],divider=round(s['gridlines']['y']['YSB2']-s['gridlines']['y']['YSB'],4),
-  walls=[{k:w[k] for k in ('id','type','x1','y1','x2','y2')} for w in s['walls']],doors=doors,
+  walls=[{k:w[k] for k in ('id','type','x1','y1','x2','y2','thick') if k in w} for w in s['walls']],doors=doors,
   rooms=[{k:r[k] for k in ('id','name','x','y','width','depth')} for r in s['rooms']],
   pillars=[{k:o[k] for k in ('id','shape','x','y','width','depth')} for o in s['furniture'] if o['id'] in ('p1','p2','p3')],
   cabinet=cab,furniture=furn,chairs=chairs,sites=json.load(open('sites.json')))

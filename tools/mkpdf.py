@@ -30,7 +30,7 @@ def wall_rects():
     for w in D['walls']:
         hz=abs(w['y1']-w['y2'])<1e-6; a,b=(sorted([w['x1'],w['x2']]) if hz else sorted([w['y1'],w['y2']])); at=w['y1'] if hz else w['x1']
         typ='wall' if (w['type']=='wall' or w['id']=='g2') else w['type']
-        thick=0.127 if w['type']=='window' else 0.12 if typ=='wall' else 0.05
+        thick=w.get('thick',0.127) if w['type']=='window' else 0.12 if typ=='wall' else 0.05
         if w['id']=='w9': thick=D['divider']
         segs=[]; s=a
         for c0,c1 in cuts_on(w):
@@ -38,7 +38,8 @@ def wall_rects():
             s=max(s,c1)
         if s<b: segs.append((s,b))
         for s0,s1 in segs:
-            if w['type']=='window': o0=at if at>1 else at-thick     # window glass sits outside the white bound
+            if w['type']=='glass' and w.get('thick'): thick=w['thick']; o0=at    # measured glass wall, on the open plan side
+            elif w['type']=='window': o0=at if at>1 else at-thick     # window glass sits outside the white bound
             elif w['id']=='w9': o0=at
             else: o0=at-thick/2
             res.append((typ,R(s0,o0,s1-s0,thick) if hz else R(o0,s0,thick,s1-s0)))
@@ -84,12 +85,22 @@ def draw(ax,furn):
             ax.add_patch(Circle((MX(o['cx']),o['cy']),o['w']/2,fc=c,ec='black',lw=0.9,zorder=3)); r=o['w']/2; obst.append((MX(o['cx'])-r,o['cy']-r,MX(o['cx'])+r,o['cy']+r))
         else:
             l,b,w,h=R(o['cx']-o['w']/2,o['cy']-o['d']/2,o['w'],o['d']); ax.add_patch(Rectangle((l,b),w,h,fc=c,ec='black',lw=0.9,zorder=3)); box(l,b,w,h,0.03)
+    for o in D['furniture']:
+        if o['kind']=='tvh' or o['id']=='sv': continue
+        tall=o['d']>o['w']*1.2
+        txt=('%.3f m across'%o['w']) if o['kind']=='round' else ('%.3f x %.3f m'%((o['d'],o['w']) if tall else (o['w'],o['d'])))
+        fs=7 if min(o['w'],o['d'])>0.6 else 5.5
+        if max(o['w'],o['d'])<0.8: txt=txt.replace(' x ','\nx ').replace(' m',' m'); fs=5.5
+        ax.text(MX(o['cx']),o['cy'],txt,ha='center',va='center',fontsize=fs,rotation=90 if tall else 0,zorder=8,color='#1a1a1a',linespacing=1.0)
     for c in D['chairs']:
         r=0.2 if c.get('stool') else 0.27; x=MX(c['cx'])
         ax.add_patch(Circle((x,c['cy']),r,fc='white',ec='#555',lw=0.9,zorder=3)); obst.append((x-r,c['cy']-r,x+r,c['cy']+r))
     s=D['sofa']; dd=s['depth']
-    for (x,y,w,h) in ((0,s['a']['y'],dd,s['a']['len']),(dd,s['b']['y'],s['b']['len']-dd,dd),(s['c']['x'],s['c']['y'],dd,s['c']['len'])):
-        l,b,w2,h2=R(x,y,w,h); ax.add_patch(Rectangle((l,b),w2,h2,fc=SOFA,ec='black',lw=0.9,zorder=3)); box(l,b,w2,h2,0.03)
+    y0=s['b']['y']; xc=s['c']['x']; ya=y0+s['a']['len']; yc=s['c']['y']
+    zz=[(0,ya),(dd,ya),(dd,y0+dd),(xc+dd,y0+dd),(xc+dd,yc),(xc,yc),(xc,y0),(0,y0)]   # one Z-shaped sofa, no breaks
+    ax.add_patch(Polygon([(MX(x),y) for x,y in zz],closed=True,fc=SOFA,ec='black',lw=0.9,zorder=3))
+    for (x,y,w,h) in ((0,y0,dd,s['a']['len']),(dd,y0,xc,dd),(xc,yc,dd,y0+dd-yc)):
+        l,b,w2,h2=R(x,y,w,h); box(l,b,w2,h2,0.03)
     return obst
 
 def area(a,b): return max(0,min(a[2],b[2])-max(a[0],b[0]))*max(0,min(a[3],b[3])-max(a[1],b[1]))
@@ -140,8 +151,7 @@ def page(pdf,furn,sub):
         place(ax,fig,r['name'],cands,obst,fontsize=12,weight='bold',color='#1a1a1a')
     if furn:
         s=D['sofa']
-        for x,y in ((MX(s['b']['len']/2),s['b']['y']+s['depth']/2),(MX(s['c']['x']+s['depth']/2),s['c']['y']+s['c']['len']/2)):
-            place(ax,fig,'Sofa',[(x,y)],obst,fontsize=8,color='#1a1a1a',rotation=0 if y>5 else 90)
+        place(ax,fig,'Sofa',[(MX(s['c']['x']+s['depth']/2),s['c']['y']+s['c']['len']/2)],obst,fontsize=8,color='#1a1a1a',rotation=90)
         pr=[o for o in D['furniture'] if o['id']=='sv'][0]
         ax.text(MX(pr['cx']),pr['cy'],'Printer',ha='center',va='center',fontsize=7,color='white',zorder=8)
     for d in D['doors']:
