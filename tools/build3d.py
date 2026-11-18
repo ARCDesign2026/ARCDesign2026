@@ -55,7 +55,8 @@ for o in furn:
     if o['id']=='dG':
         o['cx']=round(p2['x']+p2['width']+o['w']/2,3); o['cy']=round(P2FRONT+o['d']/2,3)  # flush against the pillar side and lined up with the cupboard front
         for c in chairs:
-            if c['room']=='openPlan' and abs(c['cx']-9.3)<0.01 and abs(c['cy']-5.369)<0.01: c['cx']=o['cx']; c['cy']=round(o['cy']+o['d']/2+0.3,3)
+            pass
+        chairs.append(dict(room='openPlan',cx=o['cx'],cy=round(o['cy']+o['d']/2+0.3,3)))   # own chair; the cluster keeps all 8 of its chairs
 # eating area: 2 marble tables with stools, L-shaped sofa along the window wall and the big boardroom glass
 ey=[r for r in s['rooms'] if r['id']=='eating'][0]
 pil=[o for o in s['furniture'] if o['id']=='p1'][0]
