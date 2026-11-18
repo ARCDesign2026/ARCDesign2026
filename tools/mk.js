@@ -1,0 +1,10 @@
+const {chromium}=require('playwright'); const fs=require('fs');
+const db=JSON.parse(fs.readFileSync('db/survey/state.json','utf8')); const d=db.data||db;
+(async()=>{const b=await chromium.launch();const errs=[];const p=await b.newPage(); p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/arc-office-survey.html'); await p.waitForTimeout(500);
+const r=await p.evaluate((d)=>{const S=window.__survey; const st=S.state(); for (const k of Object.keys(st.e)) delete st.e[k]; Object.assign(st.e,d.e); st.notes=d.notes||{};
+ const sel=S.parseSel('room:openPlan'); S.setDim(sel,S.dimsFor(sel)[0],d.e['x:XBB:XSM'].raw);
+ const sn=S.snapshot(); return {sites:S.sites(),dxf:S.dxfText(sn),csv:S.csvText(sn),walls:sn.walls.map(w=>[w.name,w.length,w.status]),doors:sn.doors.map(w=>[w.name,w.width,w.status]),sn,rooms:sn.rooms.map(r=>[r.name,r.width,r.depth,r.width_status||r.status])};},d);
+fs.mkdirSync('/mnt/project-files/office-dimensions/',{recursive:true});
+fs.writeFileSync('/mnt/project-files/office-dimensions/arc-hk-office.dxf',r.dxf); fs.writeFileSync('/mnt/project-files/office-dimensions/arc-hk-office-dimensions.csv',r.csv); fs.writeFileSync('snap.json',JSON.stringify(r.sn)); fs.writeFileSync('sites.json',JSON.stringify(r.sites));
+console.log(JSON.stringify({walls:r.walls,doors:r.doors,rooms:r.rooms},null,0)); console.log(errs.join('\n')||'no errors'); await b.close();})();

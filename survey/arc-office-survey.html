@@ -1,0 +1,837 @@
+<title>ARC HK office survey</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-screen drafting tool. Plan canvas fills the screen; a details panel sits on the right (desktop) or below (phone). */
+:root{
+  --paper:#f3f5f8; --sheet:#ffffff; --ink:#1f2a44; --ink-2:#56607a; --line:#d5dae4;
+  --wall:#1f2a44; --glass:#5b9bd5; --window:#1f2a44;
+  --room:#f2ebe0; --core:#e4e6ea; --zone:#f7f8fa; --joinery:#e8d6b5; --furn:#ffffff; --furn-line:#8d95a8;
+  --accent:#c8102e; --ok:#13865a; --ok-soft:#dff2e9; --warn:#b26a00; --bad:#c62828; --bad-soft:#fde7e7;
+  --sel:#c8102e; --input:#ffffff;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1420; --sheet:#151b29; --ink:#e7ebf3; --ink-2:#9aa4ba; --line:#2a3245;
+  --wall:#dfe5f0; --glass:#6fb0ea; --window:#dfe5f0;
+  --room:#2a2620; --core:#232834; --zone:#181e2c; --joinery:#4a3d27; --furn:#1d2433; --furn-line:#7d879c;
+  --accent:#ff5a6e; --ok:#3ccf8e; --ok-soft:#173a2b; --warn:#f0a73a; --bad:#ff6b6b; --bad-soft:#3d1c1f;
+  --sel:#ff5a6e; --input:#0f1420; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1420; --sheet:#151b29; --ink:#e7ebf3; --ink-2:#9aa4ba; --line:#2a3245;
+  --wall:#dfe5f0; --glass:#6fb0ea; --window:#dfe5f0;
+  --room:#2a2620; --core:#232834; --zone:#181e2c; --joinery:#4a3d27; --furn:#1d2433; --furn-line:#7d879c;
+  --accent:#ff5a6e; --ok:#3ccf8e; --ok-soft:#173a2b; --warn:#f0a73a; --bad:#ff6b6b; --bad-soft:#3d1c1f;
+  --sel:#ff5a6e; --input:#0f1420; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);overflow:hidden;font-size:13px}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr;}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--sheet);border-bottom:1px solid var(--line)}
+.brand{display:flex;flex-direction:column;min-width:0;margin-right:auto}
+.brand b{font-weight:700;letter-spacing:.04em;font-size:14px;text-transform:uppercase}
+.brand span{font-size:12px;color:var(--ink-2)}
+.prog{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.bar{width:90px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0}
+.btn{border:1px solid var(--line);background:var(--sheet);border-radius:6px;padding:7px 11px;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--ink-2)}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,.item:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn.primary{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.btn.small{padding:4px 8px;font-size:12px}
+.btn[disabled]{opacity:.45;cursor:default}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+main{min-height:0;display:grid;grid-template-columns:1fr 370px}
+.canvas{position:relative;min-width:0;min-height:0;background:var(--paper)}
+svg#plan{width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+svg#plan.dragging{cursor:grabbing}
+.zoom{position:absolute;right:calc(10px + env(safe-area-inset-right,0px));bottom:10px;display:flex;flex-direction:column;gap:6px}
+.zoom .btn{width:38px;height:38px;padding:0;font-size:18px;line-height:1}
+.legend{position:absolute;left:calc(10px + env(safe-area-inset-left,0px));bottom:10px;display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--ink-2);background:color-mix(in srgb,var(--sheet) 88%,transparent);border:1px solid var(--line);border-radius:6px;padding:6px 9px;max-width:calc(100% - 80px)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{width:16px;height:0;border-top:3px solid}
+aside{background:var(--sheet);border-left:1px solid var(--line);overflow:auto;min-height:0;padding-block:14px;padding-left:16px;padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+h2{font-size:15px;margin:0;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.chip{display:inline-block;font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;background:var(--line);color:var(--ink)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.head{display:flex;flex-direction:column;gap:6px}
+.head .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dim{border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.dim.ok{border-color:var(--ok)}
+.dim.bad{border-color:var(--bad)}
+.dim.active{box-shadow:0 0 0 2px var(--sel)}
+.dim label{font-size:12px;font-weight:600;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.dim label small{font-weight:400;color:var(--ink-2);font-family:var(--mono);font-size:12px}
+.entry{display:flex;gap:6px;align-items:center}
+.entry input{flex:1;min-width:0;font-family:var(--mono);font-size:16px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--input);color:var(--ink);font-variant-numeric:tabular-nums}
+.entry .unit{font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.hint{font-size:12px;color:var(--ink-2);min-height:1em}
+.hint.bad{color:var(--bad)}
+.hint.warn{color:var(--warn)}
+.dim.pend{border-color:var(--warn)}
+.item .st.warn{color:var(--warn)}
+select{font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--input);color:var(--ink)}
+.units{display:flex;flex-direction:column;gap:8px}
+.thick{stroke:none;fill-opacity:.35}
+.thick.wall,.thick.window{fill:var(--wall)}
+.thick.glass{fill:var(--glass)}
+.side{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:3px 8px;font-size:12px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--sheet)}
+textarea{width:100%;min-height:60px;font:inherit;font-size:13px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--input);color:var(--ink);resize:vertical}
+.list{display:flex;flex-direction:column;gap:2px}
+.group-t{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);font-weight:600;margin-top:10px;margin-bottom:2px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px;border:0;background:none;text-align:left;width:100%}
+.item:hover{background:var(--paper)}
+.item .st{font-family:var(--mono);font-size:11px;color:var(--ink-2);white-space:nowrap}
+.item .st.ok{color:var(--ok)}
+.item .st.bad{color:var(--bad)}
+.howto{font-size:12px;line-height:1.5;color:var(--ink-2);margin:0;padding-left:18px}
+.howto li{margin-bottom:4px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.note{font-size:12px;color:var(--ink-2)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--sheet);padding:8px 14px;border-radius:6px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.on{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.45);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
+.modal .box{background:var(--sheet);border-radius:10px;max-width:560px;width:100%;max-height:90%;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
+.modal textarea{min-height:200px;font-family:var(--mono);font-size:11px}
+/* SVG */
+.room{stroke:var(--furn-line);stroke-width:.6;vector-effect:non-scaling-stroke}
+.room.k-room{fill:var(--room)} .room.k-core{fill:var(--core)} .room.k-zone{fill:var(--zone)} .room.k-joinery{fill:var(--joinery)} .room.k-open{fill:var(--zone)}
+.room.k-zone{stroke-dasharray:4 3}
+.room.ok{fill:color-mix(in srgb,var(--ok) 14%,var(--zone))}
+.obj{fill:var(--furn);stroke:var(--furn-line);stroke-width:1;vector-effect:non-scaling-stroke}
+.obj.pillar{fill:var(--ink);stroke:none}
+.obj.tv{fill:var(--ink);stroke:none}
+.obj.ok{stroke:var(--ok);stroke-width:2}
+.obj.pillar.ok{fill:var(--ok)}
+.chair{fill:none;stroke:var(--furn-line);stroke-width:.8;vector-effect:non-scaling-stroke}
+.wl{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:butt}
+.wl.wall{stroke:var(--wall);stroke-width:3.5}
+.wl.glass{stroke:var(--glass);stroke-width:3}
+.wl.window{stroke:var(--window);stroke-width:5}
+.wl.window-in{stroke:var(--sheet);stroke-width:1.6}
+.wl.ok{stroke:var(--ok)}
+.wl.bad{stroke:var(--bad)}
+.hit{stroke:transparent;stroke-width:22;fill:none;vector-effect:non-scaling-stroke;cursor:pointer}
+.door{fill:none;stroke:var(--ink-2);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:4 3}
+.door.leaf{stroke-dasharray:none;stroke-width:1.6;stroke:var(--ink)}
+.door.ok{stroke:var(--ok)}
+.selbox{fill:none;stroke:var(--sel);stroke-width:2.5;vector-effect:non-scaling-stroke}
+.selline{stroke:var(--sel);stroke-width:7;stroke-opacity:.45;vector-effect:non-scaling-stroke;fill:none}
+.dl{stroke:var(--sel);stroke-width:1.2;vector-effect:non-scaling-stroke;fill:none}
+.dl.ok{stroke:var(--ok)}
+.dl.est{stroke:var(--ink-2)}.dl.calc{stroke-dasharray:4 3}
+.dt{font-family:var(--mono);font-weight:500;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--sheet);stroke-width:4px;stroke-linejoin:round;fill:var(--sel)}
+.dt.ok{fill:var(--ok)}
+.dt.est{fill:var(--ink-2)}
+.dt.big{stroke-width:5px;font-weight:600}
+.rl{font-family:var(--sans);font-weight:600;text-anchor:middle;fill:var(--ink);pointer-events:none}
+.rl2{font-family:var(--mono);text-anchor:middle;fill:var(--ink-2);pointer-events:none}
+.ol{font-family:var(--sans);text-anchor:middle;dominant-baseline:central;fill:var(--ink-2);pointer-events:none}
+@media (max-width: 760px){
+  main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  aside{border-left:0;border-top:1px solid var(--line);max-height:46vh;padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+  .bar{width:60px}
+  .legend{display:none}
+  header{padding-block:8px}
+  .tools .btn{padding:6px 9px;font-size:12px}
+  .lbl-long{display:none}
+  header .brand span{display:none}
+}
+@media (prefers-reduced-motion: reduce){.toast{transition:none}}
+</style>
+
+<div class="app">
+  <header>
+    <div class="brand"><b>ARC Group HK office</b><span>Site measurement plan. Type lengths any way you measured them. Shown in metres.</span></div>
+    <div class="prog" title="Measured items"><div class="bar"><i id="barFill"></i></div><span id="progTxt">0 / 0</span></div>
+    <div class="tools">
+      <button class="btn primary" id="nextBtn">Next<span class="lbl-long"> to measure</span></button>
+      <button class="btn" id="undoBtn" disabled>Undo</button>
+      <select class="btn" id="labelsSel" aria-label="Which lengths to show"><option value="0">Lengths: hide</option><option value="1">Lengths: measured only</option><option value="2">Lengths: calculated only</option><option value="3">Lengths: all</option></select>
+      <button class="btn" id="exportBtn">Export<span class="lbl-long"> for CAD</span></button>
+    </div>
+  </header>
+  <main>
+    <div class="canvas">
+      <svg id="plan" role="img" aria-label="Office floor plan. Tap a wall, door, room or piece of furniture to enter its measurement.">
+        <g id="world" transform="rotate(180)"><g id="gRooms"></g><g id="gObjs"></g><g id="gDoors"></g><g id="gWalls"></g><g id="gLabels"></g><g id="gSel"></g></g>
+      </svg>
+      <div class="legend">
+        <span><i class="sw" style="border-color:var(--wall)"></i>Solid wall</span>
+        <span><i class="sw" style="border-color:var(--glass)"></i>Glass</span>
+        <span><i class="sw" style="border-color:var(--ok)"></i>Measured</span>
+        <span><i class="sw" style="border-color:var(--bad)"></i>Numbers disagree</span>
+      </div>
+      <div class="zoom">
+        <button class="btn" id="zin" aria-label="Zoom in">+</button>
+        <button class="btn" id="zout" aria-label="Zoom out">&minus;</button>
+        <button class="btn" id="zfit" aria-label="Fit plan" style="font-size:12px">Fit</button>
+      </div>
+    </div>
+    <aside id="panel"></aside>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- Geometry from HK_Office_layout.pptx (points) ---------- */
+const PT = 20; // starting guess: 1 pt on the slide = 20 mm. Replaced by measurements.
+const OX = 82.5, OY = 247.5; // origin: left end of the office front wall
+const GX_PT = {X0:82.5,XDH:154.5,XBG:226.5,XBB:233.7,XE0:253.5,XEN:316.5,XP1:436.2,XP2:559.5,XSM:739.5,X9:897,P1L:90.6,P1R:133.8,P2L:512.7,P2R:555.9,P3L:845.7,P3R:888.9};
+const GY_PT = {YF:247.5,YD1:424.8,YSB:472.5,YSB2:477.5,YD4:505.8,YBB:522,YPT:540,Y9:630};
+const r10 = v => Math.round(v/10)*10;
+const EST = {x:{},y:{}};
+for (const k in GX_PT) EST.x[k] = r10((GX_PT[k]-OX)*PT);
+for (const k in GY_PT) EST.y[k] = r10((GY_PT[k]-OY)*PT);
+const axisOf = id => (id in GX_PT) ? 'x' : 'y';
+
+const ROOMS = [
+  {id:'bigBoard',name:'Big boardroom (8 to 10)',k:'room',l:'X0',t:'YF',r:'XBB',b:'YBB',grp:'Rooms'},
+  {id:'eating',name:'Eating area',k:'zone',l:'X0',t:'YBB',r:'XBB',b:'Y9',grp:'Rooms'},
+  {id:'openPlan',name:'Open-plan workspace',k:'open',l:'XBB',t:'YF',r:'XSM',b:'Y9',grp:'Rooms'},
+  {id:'printIT',name:'Print / IT',k:'core',l:'XP1',t:'YPT',r:'XP2',b:'Y9',grp:'Rooms',extra:[['XBB','XP1','Gap from boardroom glass to Print / IT'],['XP2','XSM','Gap from Print / IT to glass on left']]},
+  {id:'smallBoard',name:'Small boardroom (6)',k:'room',l:'XSM',t:'YF',r:'X9',b:'YSB',grp:'Rooms'},
+  {id:'securities',name:'Top left room',k:'room',l:'XSM',t:'YSB2',r:'X9',b:'Y9',grp:'Rooms'}
+];
+const WALLS = [
+  ['w6','wall','YF','X0','XDH','Front wall, big boardroom'],
+  ['g2','glass','YF','XBB','XSM','Front glass, big boardroom glass to small boardroom glass (main door included)'],
+  ['w7','wall','YF','XSM','X9','Front wall, small boardroom'],
+  ['n1','window','Y9','X0','X9','External windows, top'],
+  ['n2','window','X0','YF','Y9','External windows, right'],
+  ['n3','window','X9','YF','Y9','External windows, left'],
+  ['g3','glass','XBB','YF','YBB','Big boardroom glass, left side'],
+  ['g4','glass','YBB','X0','XBB','Big boardroom glass, top'],
+  ['g5','glass','XSM','YF','YD1','Small boardroom glass, right side (door not included)'],
+  ['g7','glass','XSM','YSB2','Y9','Top left room glass (door included, divider not included)'],
+  ['w9','wall','YSB','XSM','X9','Divider between small boardroom and top left room']
+].map(a=>({id:a[0],type:a[1],at:a[2],a:a[3],b:a[4],name:a[5]}));
+const WALL_EXTRA={n2:[['YF','YBB','Big boardroom part (front wall to boardroom glass)'],['YBB','Y9','Eating area part (boardroom glass to top windows)']],n1:[['P1R','P2L','Gap between middle pillar and eating area pillar (pillars not included)']],g7:[['P2R','XSM','Gap from this glass to the middle pillar (pillar not included)']]};
+const DIVIDER={w9:['YSB','YSB2']}; // divider drawn with real thickness between two lines
+const DOORS = [
+  {id:'d1',name:'Big boardroom door',at:'YF',a:'XDH',b:'XBG',hinge:'a',swing:1},
+  {id:'d2',name:'Main entrance (card lock)',at:'YF',a:'XE0',b:'XEN',hinge:'a',swing:1}, // opens towards the big boardroom
+  {id:'d3',name:'Small boardroom door',at:'XSM',a:'YD1',b:'YSB',hinge:'b',swing:1},
+  {id:'d4',name:'Top left room door (locked)',at:'XSM',a:'YSB2',b:'YD4',hinge:'a',swing:1}
+];
+// furniture: [id, name, room, kind, x, y, w, h (pt), copy group]
+const OBJ_RAW = [
+  ['p1','Eating area pillar','eating','pillar',90.6,583.2,43.2,43.2],
+  ['st','Cabinets along front glass','openPlan','rect',317.3,247.5,171.7,12.6],
+  ['p2','Middle pillar (Print / IT)','printIT','pillar',512.7,583.2,43.2,43.2],
+  ['p3','Top left room pillar','securities','pillar',845.7,583.2,43.2,43.2]
+];
+const CHAIRS_RAW = [
+  ['bigBoard',10.8,[]],
+  ['eating',9,[]],
+  ['openPlan',10.8,[]],
+  ['smallBoard',10.8,[]],
+  ['securities',10.8,[]]
+];
+const ROOM = Object.fromEntries(ROOMS.map(r=>[r.id,r]));
+const ptBox = r => ({l:GX_PT[r.l],t:GY_PT[r.t],r:GX_PT[r.r],b:GY_PT[r.b]});
+const OBJS = OBJ_RAW.map(a=>{
+  const [id,name,room,kind,x,y,w,h,grp] = a; const B = ptBox(ROOM[room]);
+  const cx = x + w/2, cy = y + h/2;
+  return {id,name,room,kind,grp:grp||null,
+    fcx:(cx-B.l)/(B.r-B.l), fcy:(cy-B.t)/(B.b-B.t),
+    ew:kind==='tvv'?100:r10(w*PT), eh:kind==='tvh'?100:r10(h*PT),
+    sx:(cx-B.l) <= (B.r-cx) ? 'l':'r', sy:(cy-B.t) <= (B.b-cy) ? 't':'b'};
+});
+const OBJ = Object.fromEntries(OBJS.map(o=>[o.id,o]));
+const CHAIRS = []; CHAIRS_RAW.forEach(([room,d,list])=>{const B=ptBox(ROOM[room]); list.forEach(([x,y])=>CHAIRS.push({room,fcx:(x+d/2-B.l)/(B.r-B.l),fcy:(y+d/2-B.t)/(B.b-B.t),d:r10(d*PT)}));});
+
+/* ---------- span keys and relations ---------- */
+function spanKey(a,b){ const ax=axisOf(a); const [p,q] = EST[ax][a] <= EST[ax][b] ? [a,b] : [b,a]; return ax+':'+p+':'+q; }
+const SPAN_LABEL = {};
+const REL = {x:new Map(), y:new Map()};
+function addRel(a,b,label,weak){
+  const key = spanKey(a,b); const [ax,p,q] = key.split(':');
+  if (!REL[ax].has(key)) REL[ax].set(key,{key,a:p,b:q,est:EST[ax][q]-EST[ax][p],weak:!!weak});
+  else if (!weak) REL[ax].get(key).weak = false;
+  if (label && !SPAN_LABEL[key]) SPAN_LABEL[key] = label;
+  return key;
+}
+ROOMS.forEach(r=>{ addRel(r.l,r.r,r.name+' width'); addRel(r.t,r.b,r.name+' depth'); (r.extra||[]).forEach(e=>addRel(e[0],e[1],e[2])); });
+WALLS.forEach(w=>{ addRel(w.a,w.b,w.name); if (DIVIDER[w.id]) addRel(...DIVIDER[w.id],'Divider thickness'); (WALL_EXTRA[w.id]||[]).forEach(e=>addRel(e[0],e[1],e[2])); });
+DOORS.forEach(d=>addRel(d.a,d.b,d.name+' opening'));
+const SQ=new Set(['p1','p2','p3']); // square pillars (the user confirmed these are square)
+// pillars sit on their own gridlines so gaps between them can be measured
+const PIL = {p1:{L:'P1L',R:'P1R',extra:[['X0','P1L','Gap from window wall to pillar']]},
+  p2:{L:'P2L',R:'P2R',extra:[['P2R','XSM','Gap from middle pillar to top left room glass (pillar not included)'],['P1R','P2L','Gap from middle pillar to eating area pillar (pillars not included)']]},
+  p3:{L:'P3L',R:'P3R',extra:[['XSM','P3L','Gap from top left room glass to pillar'],['P3R','X9','Gap from pillar to window wall']]}};
+for (const id in PIL){ const P=PIL[id]; addRel(P.L,P.R,SQ.has(id)?'Pillar width':'Pillar diameter'); P.extra.forEach(e=>addRel(e[0],e[1],e[2])); }
+['x','y'].forEach(ax=>{ const ids = Object.keys(EST[ax]).sort((m,n)=>EST[ax][m]-EST[ax][n]); for (let i=0;i<ids.length-1;i++) if (EST[ax][ids[i+1]]>EST[ax][ids[i]]) addRel(ids[i],ids[i+1],null,true); });
+
+/* ---------- state ---------- */
+const LS_KEY = 'arc-hk-office-survey-v1';
+// every entry is kept exactly as typed: state.e[key] = {raw, at}
+// keys: span "x:A:B", furniture "o:id:field", thickness "t:wallId", own unit "u:NAME"
+let state = migrate({});
+let history = [];
+let POS = {x:{...EST.x}, y:{...EST.y}}, CONFLICT = new Set(), VAL = {};
+let selected = null, activeDim = null, showAll = 0;
+function migrate(s){
+  s = Object.assign({e:{}, obj:{}, notes:{}, defUnit:'auto', updatedAt:0}, s||{});
+  if (s.meas){ for (const k in s.meas){ const m=s.meas[k]; if (m && m.v!=null && !s.e[k]) s.e[k]={raw:m.v+' mm',at:m.at||0}; } delete s.meas; }
+  for (const id in s.obj){ const o=s.obj[id]; ['w','h','d','len','gx','gy'].forEach(f=>{ if (typeof o[f]==='number'){ const k='o:'+id+':'+f; if (!s.e[k]) s.e[k]={raw:o[f]+' mm',at:0}; delete o[f]; } }); }
+  for (const k of Object.keys(s.e)){ const nk=k.replace(/^y:YSB:Y9$/,'y:YSB2:Y9').replace(/\bXBN\b/g,'XBB').replace(/\bYBE\b/g,'YBB').replace(/\bYD[23]\b/g,'YSB'); if (nk!==k){ if (!s.e[nk]) s.e[nk]=s.e[k]; delete s.e[k]; } }
+  if (!s.mig3){ s.mig3=1; const a=s.e['y:YF:YSB']; if (a && /2S/.test(a.raw) && !s.e['y:YF:YD1']){ s.e['y:YF:YD1']=a; delete s.e['y:YF:YSB']; } s.e['y:YBB:Y9']={raw:'18 inches - 2/16ths + 1L + 5 foot 2 inches',at:Date.now()}; }
+  if (!s.mig4){ s.mig4=1; if (!s.e['x:P2R:XSM']) s.e['x:P2R:XSM']={raw:'18.5 inches + 2S + 47 inches',at:Date.now()}; if (!s.e['x:P1R:P2L']) s.e['x:P1R:P2L']={raw:'17 inches + 2/16ths + SSLSSLS(L-S)',at:Date.now()}; }
+  if (!s.mig5){ s.mig5=1; const f=s.e['x:X0:XDH']; if (f && /46 inches \+ 5\/16/.test(f.raw)) delete s.e['x:X0:XDH']; }
+  if (!s.e['u:L']) s.e['u:L']={raw:'4 ft - 1/16 in',at:0};
+  if (!s.e['u:S']) s.e['u:S']={raw:'2 ft - 2/16 in',at:0};
+  return s; }
+try { const s = JSON.parse(localStorage.getItem(LS_KEY)||'null'); if (s) state = migrate(s); } catch(e){}
+
+/* ---------- reading what was typed ---------- */
+// Understands: 116 inches - 3/16ths, 4S + 1L - 5.5 in, 5 foot 2 inches, 51.1cm, 2.4m, 4 panes of 39 in 7/16 each, (4L + 6S), about 3m
+const UNIT_DEF=[[/^(millimet(?:er|re)s?|mm)(?![a-z])/,'mm',1],[/^(centimet(?:er|re)s?|cm)(?![a-z])/,'cm',10],[/^(met(?:er|re)s?|m)(?![a-z])/,'m',1000],[/^(feet|foot|ft|')/,'ft',304.8],[/^(inch(?:es)?|in|")(?![a-z])/,'in',25.4]];
+const UF={mm:1,cm:10,m:1000,ft:304.8,in:25.4}, SUB={ft:'in',in:'in',m:'cm',cm:'mm',mm:'mm'};
+const ROUGH_W=/^(about|approx\w*|around|roughly|circa|abt|ish|est|estimate)$/, MUL_W=/^(x|of|times)$/;
+function lexLen(str){
+  const o=String(str).replace(/[−–—]/g,'-').replace(/[×*]/g,'x').replace(/,/g,' ').replace(/[’′]/g,"'").replace(/[”″]/g,'"');
+  let s=o.toLowerCase(), pos=0; const toks=[];
+  while (pos<s.length){ const r=s.slice(pos); let m, len=1;
+    if ((m=r.match(/^\s+/))) len=m[0].length;
+    else if ((m=r.match(/^(\d*\.?\d+)\s*\/\s*(\d*\.?\d+)(?:\s*(?:ths|th|nds|nd|rds|rd|s)(?![a-z]))?/))){ len=m[0].length; toks.push({t:'num',v:+m[1]/+m[2],frac:true}); }
+    else if ((m=r.match(/^\d*\.?\d+/))){ len=m[0].length; toks.push({t:'num',v:+m[0],dec:m[0].includes('.')}); }
+    else if ((m=r.match(/^[+\-()~]/))){ toks.push({t:m[0]==='~'?'rough':m[0]}); }
+    else { let u=null; for (const [re,name] of UNIT_DEF){ const mm=r.match(re); if (mm){ u=name; m=mm; break; } }
+      if (u){ len=m[0].length; toks.push({t:'unit',u}); }
+      else if ((m=r.match(/^[a-z]+/))){ len=m[0].length; const w=m[0], orig=o.substr(pos,len);
+        if (w==='half'||w==='quarter') toks.push({t:'num',v:w==='half'?0.5:0.25,frac:true});
+        else if (MUL_W.test(w)) toks.push({t:'mul'});
+        else if (ROUGH_W.test(w)) toks.push({t:'rough'});
+        else if (w.length===1 && orig===orig.toUpperCase()) toks.push({t:'cust',n:orig});
+        else if (orig===orig.toUpperCase() && [...orig].every(ch=>state.e['u:'+ch])) [...orig].forEach(ch=>toks.push({t:'cust',n:ch}));
+        else if (state.e['u:'+orig.toUpperCase()] && w.length<=3) toks.push({t:'cust',n:orig.toUpperCase()});
+        else toks.push({t:'word',w:orig}); }
+      else toks.push({t:'word',w:r[0]}); }
+    pos+=len; }
+  return toks; }
+function evalLen(raw, units){
+  const all=lexLen(raw); const ignored=all.filter(t=>t.t==='word').map(t=>t.w); const rough=all.some(t=>t.t==='rough');
+  const T=all.filter(t=>t.t!=='word'&&t.t!=='rough'); let i=0; const ctx={imp:false,lastMetric:null,anyUnit:false};
+  const Z=()=>({mm:0,bi:0,bf:0,c:{}});
+  const add=(a,b,sg)=>{ const r={mm:a.mm+sg*b.mm,bi:a.bi+sg*b.bi,bf:a.bf+sg*b.bf,c:{...a.c}}; for (const k in b.c) r.c[k]=(r.c[k]||0)+sg*b.c[k]; return r; };
+  const scl=(a,k)=>{ const r={mm:a.mm*k,bi:a.bi*k,bf:a.bf*k,c:{}}; for (const n in a.c) r.c[n]=a.c[n]*k; return r; };
+  const isScalar=a=>a.mm===0&&a.bf===0&&Object.keys(a.c).length===0;
+  const useUnit=u=>{ ctx.anyUnit=true; if (u==='ft'||u==='in') ctx.imp=true; else ctx.lastMetric=u; };
+  function expr(){ let v; if (T[i]&&T[i].t==='-'){ i++; v=scl(term(),-1); } else v=term();
+    while (T[i]&&(T[i].t==='+'||T[i].t==='-')){ const sg=T[i].t==='+'?1:-1; i++; v=add(v,term(),sg); } return v; }
+  function term(){ let v=group(); while (T[i]&&T[i].t==='mul'){ i++; const w=group(); if (isScalar(v)) v=scl(w,v.bi); else if (isScalar(w)) v=scl(v,w.bi); else throw 0; } return v; }
+  function group(){ let acc=Z(), last=null, got=false;
+    while (T[i]){ const t=T[i];
+      if (t.t==='('){ i++; const e=expr(); if (!T[i]||T[i].t!==')') throw 0; i++; acc=add(acc,e,1); got=true; last=null; continue; }
+      if (t.t==='num'){ i++; const n=t.v, nt=T[i];
+        if (nt&&nt.t==='unit'){ i++; acc.mm+=n*UF[nt.u]; useUnit(nt.u); last=nt.u; }
+        else if (nt&&nt.t==='cust'){ i++; acc.c[nt.n]=(acc.c[nt.n]||0)+n; }
+        else if (last){ const su=SUB[last]; acc.mm+=n*UF[su]; useUnit(su); }
+        else if (t.frac) acc.bf+=n; else { acc.bi+=n; if (t.dec) ctx.dec=true; }
+        got=true; continue; }
+      if (t.t==='cust'){ i++; acc.c[t.n]=(acc.c[t.n]||0)+1; got=true; continue; }
+      if (t.t==='unit' && !got){ i++; continue; }
+      break; }
+    if (!got) throw 0; return acc; }
+  try{ if (!T.some(t=>t.t==='num'||t.t==='cust')) return {v:null,err:true,ignored,rough};
+    const r=expr(); if (i<T.length) throw 0;
+    let mm=r.mm; if (r.bf) { mm+=r.bf*25.4; ctx.imp=true; }
+    if (r.bi){ let u; if (ctx.imp) u='in'; else if (ctx.lastMetric) u=ctx.lastMetric; else if (state.defUnit && state.defUnit!=='auto') u=state.defUnit; else u=(ctx.dec&&Math.abs(r.bi)<100)?'m':'mm'; mm+=r.bi*UF[u]; }
+    const missing=[]; for (const n in r.c){ if (!r.c[n]) continue; const uv=units?units[n]:null; if (uv==null) missing.push(n); else mm+=r.c[n]*uv; }
+    if (missing.length) return {v:null,missing,ignored,rough};
+    return {v:mm,ignored,rough,uses:Object.keys(r.c)};
+  }catch(e){ return {v:null,err:true,ignored,rough}; } }
+function derive(){ VAL={}; const units={};
+  for (const k in state.e) if (k.startsWith('u:')){ const r=evalLen(state.e[k].raw,null); VAL[k]=r; units[k.slice(2)]=r.v!=null&&r.v>0?r.v:null; }
+  for (const k in state.e) if (!k.startsWith('u:')) VAL[k]=evalLen(state.e[k].raw,units); }
+const MV = k => { const r=VAL[k]; return r&&r.v!=null&&r.v>0 ? r.v : null; };
+const ENT = k => !!(state.e[k] && String(state.e[k].raw).trim());
+
+/* ---------- solver: least squares on gridline positions ---------- */
+function solveAxis(ax){
+  const ids = Object.keys(EST[ax]); const n = ids.length; const idx = Object.fromEntries(ids.map((id,i)=>[id,i]));
+  const anchor = ax==='x' ? 'X0' : 'YF';
+  const A = Array.from({length:n},()=>new Float64Array(n)); const B = new Float64Array(n);
+  const add = (a,b,t,w)=>{ const i=idx[a], j=idx[b]; A[i][i]+=w; A[j][j]+=w; A[i][j]-=w; A[j][i]-=w; B[j]+=w*t; B[i]-=w*t; };
+  for (const r of REL[ax].values()){
+    const m = MV(r.key);
+    if (m!=null) add(r.a,r.b,m,(VAL[r.key].rough?1e3:1e6)/Math.max(m,50));
+    else add(r.a,r.b,r.est,(r.weak?0.05:1)/Math.max(r.est,50));
+  }
+  const ai = idx[anchor]; A[ai][ai]+=1e9; // pin anchor at 0
+  // gaussian elimination
+  const M = A.map((row,i)=>[...row,B[i]]);
+  for (let c=0;c<n;c++){ let p=c; for (let r=c+1;r<n;r++) if (Math.abs(M[r][c])>Math.abs(M[p][c])) p=r; [M[c],M[p]]=[M[p],M[c]]; const d=M[c][c]||1e-12; for (let r=c+1;r<n;r++){ const f=M[r][c]/d; if(!f) continue; for (let k=c;k<=n;k++) M[r][k]-=f*M[c][k]; } }
+  const x = new Float64Array(n); for (let i=n-1;i>=0;i--){ let s=M[i][n]; for (let k=i+1;k<n;k++) s-=M[i][k]*x[k]; x[i]=s/(M[i][i]||1e-12); }
+  const out = {}; ids.forEach((id,i)=>out[id]=x[i]); return out;
+}
+function solve(){
+  derive(); POS = {x:solveAxis('x'), y:solveAxis('y')}; CONFLICT = new Set();
+  for (const ax of ['x','y']) for (const r of REL[ax].values()){ const m=MV(r.key); if (m!=null && Math.abs((POS[ax][r.b]-POS[ax][r.a])-m)>(VAL[r.key].rough?Math.max(3,m*0.03):3)) CONFLICT.add(r.key); }
+}
+const spanLen = key => { const [ax,a,b]=key.split(':'); return POS[ax][b]-POS[ax][a]; };
+
+/* ---------- derived geometry ---------- */
+function roomBox(r){ const L=POS.x[r.l],T=POS.y[r.t]; return {x:L,y:T,w:POS.x[r.r]-L,h:POS.y[r.b]-T}; }
+function objVals(id){ const s={...(state.obj[id]||{})}; ['w','h','d','len','gx','gy'].forEach(f=>{ const v=MV('o:'+id+':'+f); if (v!=null) s[f]=v; else delete s[f]; }); return s; }
+function objSize(o){ const s=objVals(o.id);
+  if (o.kind==='pillar'||o.kind==='round'){ const d=s.d||o.ew; return {w:d,h:d}; }
+  if (o.kind==='tvh') return {w:s.len||o.ew,h:o.eh};
+  if (o.kind==='tvv') return {w:o.ew,h:s.len||o.eh};
+  return {w:s.w||o.ew,h:s.h||o.eh}; }
+function objGeom(o){ const R=roomBox(ROOM[o.room]); const s=objVals(o.id); const {w,h}=objSize(o);
+  const sx=s.sx||o.sx, sy=s.sy||o.sy; let x,y;
+  if (s.gx!=null) x = sx==='l' ? R.x+s.gx : R.x+R.w-s.gx-w; else x = R.x+o.fcx*R.w-w/2;
+  if (PIL[o.id]){ const P=PIL[o.id]; const d=POS.x[P.R]-POS.x[P.L]; const cy=(s.gy!=null)?null:R.y+o.fcy*R.h;
+    return {x:POS.x[P.L],y:s.gy!=null?(sy==='t'?R.y+s.gy:R.y+R.h-s.gy-d):cy-d/2,w:d,h:d}; }
+  if (s.gy!=null) y = sy==='t' ? R.y+s.gy : R.y+R.h-s.gy-h; else y = o.id==='st' ? R.y : R.y+o.fcy*R.h-h/2; // cabinets sit against the front glass
+  return {x,y,w,h}; }
+function wallSeg(w){ const ax=axisOf(w.at); if (ax==='y') return {x1:POS.x[w.a],y1:POS.y[w.at],x2:POS.x[w.b],y2:POS.y[w.at]}; return {x1:POS.x[w.at],y1:POS.y[w.a],x2:POS.x[w.at],y2:POS.y[w.b]}; }
+
+/* ---------- dimensions per selectable ---------- */
+function dimsFor(sel){
+  if (!sel) return [];
+  if (sel.t==='wall'){ const w=sel.o; return [{type:'span',key:spanKey(w.a,w.b),label:'Length'}, ...(WALL_EXTRA[w.id]||[]).map(e=>({type:'span',key:spanKey(e[0],e[1]),label:e[2]})), DIVIDER[w.id]?{type:'span',key:spanKey(...DIVIDER[w.id]),label:'Divider frame thickness',opt:true}:{type:'thick',key:'t:'+w.id,label:w.type==='glass'?'Frame thickness':w.type==='window'?'Window frame or wall thickness':'Wall thickness',opt:true}]; }
+  if (sel.t==='door'){ const d=sel.o; return [{type:'span',key:spanKey(d.a,d.b),label:'Opening width (frame to frame)'}]; }
+  if (sel.t==='room'){ const r=sel.o; const out=[{type:'span',key:spanKey(r.l,r.r),label:'Width (across the screen)'},{type:'span',key:spanKey(r.t,r.b),label:'Depth (up and down the screen)'}]; (r.extra||[]).forEach(e=>out.push({type:'span',key:spanKey(e[0],e[1]),label:e[2]})); return out; }
+  if (sel.t==='obj' && PIL[sel.o.id]){ const o=sel.o, P=PIL[o.id];
+    return [{type:'span',key:spanKey(P.L,P.R),label:SQ.has(o.id)?'Width (square pillar)':'Diameter'}, ...P.extra.map(e=>({type:'span',key:spanKey(e[0],e[1]),label:e[2],opt:true})), {type:'obj',f:'gy',key:'o:'+o.id+':gy',label:'Gap to top or bottom wall',opt:true}]; }
+  if (sel.t==='obj'){ const o=sel.o; const k=f=>'o:'+o.id+':'+f;
+    const out = [];
+    if (o.kind==='pillar'||o.kind==='round') out.push({type:'obj',f:'d',key:k('d'),label:'Diameter'});
+    else if (o.kind==='tvh'||o.kind==='tvv') out.push({type:'obj',f:'len',key:k('len'),label:'Screen width'});
+    else if (o.id==='st'){ out.push({type:'obj',f:'w',key:k('w'),label:'Cabinet run length (along the glass)'}); out.push({type:'obj',f:'h',key:k('h'),label:'Cabinet thickness (depth from the glass)'}); }
+    else { out.push({type:'obj',f:'w',key:k('w'),label:'Width (across the screen)'}); out.push({type:'obj',f:'h',key:k('h'),label:'Depth (up and down the screen)'}); }
+    out.push({type:'obj',f:'gx',key:k('gx'),label:'Gap to side wall',opt:true});
+    out.push({type:'obj',f:'gy',key:k('gy'),label:'Gap to top or bottom wall',opt:true});
+    return out; }
+  return [];
+}
+function dimValue(sel,d){
+  if (d.type==='span') return spanLen(d.key);
+  if (d.type==='thick') return MV(d.key);
+  const o=sel.o, g=objGeom(o), R=roomBox(ROOM[o.room]), s=objVals(o.id);
+  if (d.f==='w'||d.f==='d') return g.w; if (d.f==='h') return g.h;
+  if (d.f==='len') return o.kind==='tvh'?g.w:g.h;
+  if (d.f==='gx') return (s.sx||o.sx)==='l' ? g.x-R.x : R.x+R.w-(g.x+g.w);
+  if (d.f==='gy') return (s.sy||o.sy)==='t' ? g.y-R.y : R.y+R.h-(g.y+g.h);
+}
+function dimMeasured(sel,d){ return MV(d.key); }
+function dimEntered(sel,d){ return ENT(d.key); }
+function keyStatus(k){ if (CONFLICT.has(k)) return 'conflict'; if (MV(k)!=null) return VAL[k].rough?'rough':'measured'; if (ENT(k)) return 'typed, not worked out yet'; return 'estimated'; }
+
+/* ---------- task list (progress) ---------- */
+function allSels(){ return [...ROOMS.map(r=>({t:'room',o:r})),...WALLS.map(w=>({t:'wall',o:w})),...DOORS.map(d=>({t:'door',o:d})),...OBJS.map(o=>({t:'obj',o}))]; }
+function tasks(){ const seen=new Set(), out=[];
+  const order = [...WALLS.filter(w=>w.type!=='window').map(w=>({t:'wall',o:w})), ...WALLS.filter(w=>w.type==='window').map(w=>({t:'wall',o:w})), ...DOORS.map(d=>({t:'door',o:d})), ...ROOMS.map(r=>({t:'room',o:r})), ...OBJS.map(o=>({t:'obj',o}))];
+  order.forEach(sel=>dimsFor(sel).forEach(d=>{ if (d.opt) return; const k=d.key; if (seen.has(k)) return; seen.add(k); out.push({sel,d,k,done:ENT(k)}); }));
+  return out; }
+function selStatus(sel){ const ds=dimsFor(sel).filter(d=>!d.opt); const m=ds.filter(d=>ENT(d.key)).length; const pend=ds.filter(d=>ENT(d.key)&&MV(d.key)==null).length; const bad=ds.some(d=>CONFLICT.has(d.key)); return {m,n:ds.length,bad,pend}; }
+
+/* ---------- SVG render ---------- */
+const NS='http://www.w3.org/2000/svg';
+const svg=document.getElementById('plan');
+const G={rooms:document.getElementById('gRooms'),objs:document.getElementById('gObjs'),doors:document.getElementById('gDoors'),walls:document.getElementById('gWalls'),labels:document.getElementById('gLabels'),sel:document.getElementById('gSel')};
+function el(tag,attrs,parent){ const e=document.createElementNS(NS,tag); for (const k in attrs) e.setAttribute(k,attrs[k]); if (parent) parent.appendChild(e); return e; }
+const fmt = v => (Math.round(v)/1000).toFixed(3); // all lengths shown in metres
+const selId = sel => sel ? sel.t+':'+sel.o.id : '';
+let FS = 200; // label font size in mm, follows zoom
+
+function render(){
+  Object.values(G).forEach(g=>g.replaceChildren());
+  // rooms
+  ROOMS.forEach(r=>{ const b=roomBox(r); const st=selStatus({t:'room',o:r});
+    el('rect',{x:b.x,y:b.y,width:Math.max(b.w,1),height:Math.max(b.h,1),class:'room k-'+r.k+(st.m===st.n&&r.k!=='core'&&r.k!=='joinery'?' ok':''),'data-sel':'room:'+r.id},G.rooms);
+  });
+  // chairs
+  CHAIRS.forEach(c=>{ const b=roomBox(ROOM[c.room]); el('circle',{cx:b.x+c.fcx*b.w,cy:b.y+c.fcy*b.h,r:c.d/2,class:'chair'},G.objs); });
+  // objects
+  OBJS.forEach(o=>{ const g=objGeom(o); const st=selStatus({t:'obj',o}); const ok=st.m===st.n?' ok':'';
+    if (SQ.has(o.id)) el('rect',{x:g.x,y:g.y,width:g.w,height:g.h,class:'obj pillar'+ok,'data-sel':'obj:'+o.id},G.objs);
+    else if (o.kind==='pillar'||o.kind==='round') el('circle',{cx:g.x+g.w/2,cy:g.y+g.h/2,r:g.w/2,class:'obj '+(o.kind==='pillar'?'pillar':'')+ok,'data-sel':'obj:'+o.id},G.objs);
+    else if (o.kind==='tvh'||o.kind==='tvv') el('rect',{x:g.x,y:g.y,width:g.w,height:g.h,class:'obj tv'+ok,'data-sel':'obj:'+o.id},G.objs);
+    else el('rect',{x:g.x,y:g.y,width:g.w,height:g.h,rx:o.kind==='rrect'?Math.min(g.w,g.h)*0.18:0,class:'obj'+ok,'data-sel':'obj:'+o.id},G.objs);
+    if (o.id==='sv') el('text',{x:g.x+g.w/2,y:g.y+g.h/2,class:'ol','font-size':FS*0.7},G.labels).textContent='Server';
+    // invisible enlarged hit area for thin items
+    if (o.kind==='tvh'||o.kind==='tvv'){ const s = wallLike(g); el('line',{...s,class:'hit','data-sel':'obj:'+o.id},G.objs); }
+  });
+  // doors
+  DOORS.forEach(d=>{ const ax=axisOf(d.at); const at=POS[ax==='y'?'y':'x'][d.at];
+    const pa=POS[ax==='y'?'x':'y'][d.a], pb=POS[ax==='y'?'x':'y'][d.b]; const w=pb-pa; const st=selStatus({t:'door',o:d}); const ok=st.m===st.n?' ok':'';
+    const hp = d.hinge==='a'?pa:pb, op = d.hinge==='a'?pb:pa; const s=d.swing*Math.abs(w);
+    let H,E,O; if (ax==='y'){ H=[hp,at]; E=[hp,at+s]; O=[op,at]; } else { H=[at,hp]; E=[at+s,hp]; O=[at,op]; }
+    const sweep = ((E[0]-H[0])*(O[1]-H[1])-(E[1]-H[1])*(O[0]-H[0]))>0?1:0;
+    el('line',{x1:H[0],y1:H[1],x2:E[0],y2:E[1],class:'door leaf'+ok},G.doors);
+    el('path',{d:`M${E[0]} ${E[1]} A${Math.abs(w)} ${Math.abs(w)} 0 0 ${sweep} ${O[0]} ${O[1]}`,class:'door'+ok},G.doors);
+    const seg = ax==='y'?{x1:pa,y1:at,x2:pb,y2:at}:{x1:at,y1:pa,x2:at,y2:pb};
+    el('line',{...seg,class:'hit','data-sel':'door:'+d.id},G.doors);
+    // quadrant hit
+    el('path',{d:`M${H[0]} ${H[1]} L${E[0]} ${E[1]} A${Math.abs(w)} ${Math.abs(w)} 0 0 ${sweep} ${O[0]} ${O[1]} Z`,fill:'transparent','data-sel':'door:'+d.id,style:'cursor:pointer'},G.doors);
+  });
+  // core outlines (kitchen, lifts, toilets) drawn by room rects with a heavier stroke
+  ROOMS.filter(r=>r.k==='core'&&r.id!=='printIT').forEach(r=>{ const b=roomBox(r); el('rect',{x:b.x,y:b.y,width:b.w,height:b.h,fill:'none',stroke:'var(--wall)','stroke-width':1.6,'vector-effect':'non-scaling-stroke','pointer-events':'none'},G.walls); });
+  // walls
+  WALLS.forEach(w=>{ const s=wallSeg(w); const k=spanKey(w.a,w.b); const cls = CONFLICT.has(k)?' bad':(MV(k)!=null?' ok':'');
+    if (DIVIDER[w.id]){ const [p_,q_]=DIVIDER[w.id]; el('rect',{x:Math.min(s.x1,s.x2),y:POS.y[p_],width:Math.abs(s.x2-s.x1),height:POS.y[q_]-POS.y[p_],class:'thick wall'},G.walls); el('line',{x1:s.x1,y1:POS.y[q_],x2:s.x2,y2:POS.y[q_],class:'wl wall'},G.walls); }
+    const th=MV('t:'+w.id); if (th){ const hz=s.y1===s.y2; el('rect',{x:hz?Math.min(s.x1,s.x2):s.x1-th/2,y:hz?s.y1-th/2:Math.min(s.y1,s.y2),width:hz?Math.abs(s.x2-s.x1):th,height:hz?th:Math.abs(s.y2-s.y1),class:'thick '+w.type},G.walls); }
+    el('line',{...s,class:'wl '+w.type+cls},G.walls);
+    if (w.type==='window') el('line',{...s,class:'wl window-in'},G.walls);
+    el('line',{...s,class:'hit','data-sel':'wall:'+w.id},G.walls);
+  });
+  // room labels
+  ROOMS.forEach(r=>{ if (r.id==='benchH') return; const b=roomBox(r); const fs=r.k==='joinery'?FS*0.6:FS;
+    if (r.id==='benchV'){ const t=el('text',{x:0,y:0,class:'rl','font-size':fs*0.9,transform:`translate(${b.x+b.w/2} ${b.y+b.h/2}) rotate(-90)`,'dominant-baseline':'central'},G.labels); t.textContent='Sitting bench and storage'; return; }
+    let cy = b.y+b.h/2; if (r.id==='openPlan') cy = b.y+b.h*0.37; if (r.id==='bigBoard') cy=b.y+b.h*0.82; if (r.id==='smallBoard') cy=b.y+b.h*0.12; if (r.id==='securities') cy=b.y+b.h*0.08; if (r.id==='eating') cy=b.y+b.h*0.5; if (r.id==='printIT') cy=b.y+b.h*0.2;
+    let cx = b.x+b.w/2; if (r.id==='printIT') cx=b.x+b.w*0.68; if (r.id==='eating') cx=b.x+b.w*0.6;
+    const small = ['kitchen','lift1','lift2','toilets','printIT','eating'].includes(r.id);
+    const txt=r.name.toUpperCase(); const lf=Math.min(small?fs*0.75:fs, b.w*0.92/(txt.length*0.62));
+    const t=el('text',{x:cx,y:cy,class:'rl','font-size':lf},G.labels); t.textContent = txt;
+    if (!small && r.k!=='core'){ const both = MV(spanKey(r.l,r.r))!=null&&MV(spanKey(r.t,r.b))!=null; const a=(b.w*b.h/1e6).toFixed(1);
+      /* room size line removed: the user wants only dimension lines */ }
+  });
+  if (showAll) drawAllLengths();
+  drawSelection();
+  uprightText();
+  updateProgress();
+}
+// the plan is shown turned 180 degrees; turn every label back so it reads upright
+function uprightText(){ document.querySelectorAll('#world text').forEach(t=>{ const x=t.getAttribute('x')||0, y=t.getAttribute('y')||0; const tr=t.getAttribute('transform')||''; t.setAttribute('transform',(tr+' rotate(180 '+x+' '+y+')').trim()); }); }
+function wallLike(g){ return g.w>=g.h ? {x1:g.x,y1:g.y+g.h/2,x2:g.x+g.w,y2:g.y+g.h/2} : {x1:g.x+g.w/2,y1:g.y,x2:g.x+g.w/2,y2:g.y+g.h}; }
+
+/* dimension line between two points, label offset to one side */
+function dimLine(x1,y1,x2,y2,off,value,cls,grp){ grp=grp||G.sel;
+  const horiz = Math.abs(y2-y1) < Math.abs(x2-x1);
+  const ox = horiz?0:off, oy = horiz?off:0;
+  const a=[x1+ox,y1+oy], b=[x2+ox,y2+oy]; const t=FS*0.35;
+  el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],class:'dl '+cls},grp);
+  if (horiz){ el('line',{x1:a[0],y1:a[1]-t,x2:a[0],y2:a[1]+t,class:'dl '+cls},grp); el('line',{x1:b[0],y1:b[1]-t,x2:b[0],y2:b[1]+t,class:'dl '+cls},grp); }
+  else { el('line',{x1:a[0]-t,y1:a[1],x2:a[0]+t,y2:a[1],class:'dl '+cls},grp); el('line',{x1:b[0]-t,y1:b[1],x2:b[0]+t,y2:b[1],class:'dl '+cls},grp); }
+  // in the all-lengths view, set the number beside the line so the line never runs through it
+  const side = grp===G.labels ? FS*0.75 : 0; const short = Math.hypot(b[0]-a[0],b[1]-a[1]) < FS*3;
+  const tx0=(a[0]+b[0])/2 + (horiz?0:(short?side*3:side)), ty0=(a[1]+b[1])/2 - (horiz?side*(short?2.2:1):0);
+  const tx=el('text',{x:tx0,y:ty0,class:'dt '+cls+(side?' big':''),'font-size':FS*(side?0.85:0.75)},grp);
+  if (!horiz && !short) tx.setAttribute('transform',`rotate(-90 ${tx0} ${ty0})`);
+  tx.textContent=fmt(value);
+}
+function lengthSites(){
+  const out=[], seen=new Set(); const push=(key,x1,y1,x2,y2,off)=>{ if (seen.has(key)) return; seen.add(key); out.push({key,x1,y1,x2,y2,off}); };
+  const ln=(a,b,ax,at,off)=> ax==='y' ? [POS.x[a],at,POS.x[b],at,off] : [at,POS.y[a],at,POS.y[b],off];
+  for (const id in PIL){ const P=PIL[id], g=objGeom(OBJ[id]), cy=g.y+g.h/2;
+    push(spanKey(P.L,P.R),POS.x[P.L],cy,POS.x[P.R],cy,-FS*1.1); P.extra.forEach(e=>push(spanKey(e[0],e[1]),POS.x[e[0]],cy,POS.x[e[1]],cy,0)); }
+  WALLS.forEach(w=>{ const ax=axisOf(w.at), at=POS[ax][w.at];
+    push(spanKey(w.a,w.b),...ln(w.a,w.b,ax,at,0));
+    (WALL_EXTRA[w.id]||[]).forEach((e,i)=>axisOf(e[0])!==ax&&push(spanKey(e[0],e[1]),...ln(e[0],e[1],ax,at,FS*(1.6+1.3*i)*(ax==='y'?(w.at==='Y9'?1:-1):(w.at==='X0'?-1:1)))));
+    if (DIVIDER[w.id]){ const [p,q]=DIVIDER[w.id]; const x=Math.max(...Object.values(POS.x))+FS*2.2; push(spanKey(p,q),x,POS.y[p],x,POS.y[q],0); } });
+  DOORS.forEach(d=>{ const ax=axisOf(d.at); push(spanKey(d.a,d.b),...ln(d.a,d.b,ax==='y'?'y':'x',POS[ax][d.at],-FS*1.3)); });
+  ROOMS.forEach(r=>{ const b=roomBox(r);
+    push(spanKey(r.l,r.r),b.x,b.y+FS*2.4,b.x+b.w,b.y+FS*2.4,0); push(spanKey(r.t,r.b),b.x+FS*2.4,b.y,b.x+FS*2.4,b.y+b.h,0);
+    (r.extra||[]).forEach(e=>{ const [ax,p,q]=spanKey(e[0],e[1]).split(':'); if (ax==='x') push(ax+':'+p+':'+q,POS.x[p],b.y+b.h/2,POS.x[q],b.y+b.h/2,0); else push(ax+':'+p+':'+q,b.x+b.w/2,POS.y[p],b.x+b.w/2,POS.y[q],0); }); });
+  return out; }
+// showAll: 0 hide, 1 measured only, 2 calculated only, 3 all
+function drawAllLengths(){
+  lengthSites().forEach(s=>{ const typed=!!ENT(s.key); if (showAll===1&&!typed) return; if (showAll===2&&typed) return;
+    const cls= typed ? (CONFLICT.has(s.key)?'':(MV(s.key)!=null?'ok':'')) : 'est calc';
+    dimLine(s.x1,s.y1,s.x2,s.y2,s.off,spanLen(s.key),cls,G.labels); });
+  if (showAll!==2) ['w','h'].forEach(f=>{ const k='o:st:'+f; if (MV(k)==null) return; const g=objGeom(OBJ.st);
+    if (f==='w') dimLine(g.x,g.y+g.h,g.x+g.w,g.y+g.h,FS*1.1,g.w,'ok',G.labels); else dimLine(g.x+g.w*0.25,g.y,g.x+g.w*0.25,g.y+g.h,0,g.h,'ok',G.labels); });
+}
+function drawSelection(){
+  if (!selected) return; const sel=selected; const ds=dimsFor(sel);
+  const cls = d => { if (!d) return ''; if (CONFLICT.has(d.key)) return ''; return dimMeasured(sel,d)!=null?'ok':''; };
+  if (sel.t==='wall'){ const s=wallSeg(sel.o); el('line',{...s,class:'selline'},G.sel); const horiz=s.y1===s.y2; dimLine(s.x1,s.y1,s.x2,s.y2,(horiz?-1:1)*FS*1.3*(sel.o.at==='Y0'||sel.o.at==='YF'?1:1),dimValue(sel,ds[0]),cls(ds[0])); }
+  if (sel.t==='door'){ const d=sel.o; const ax=axisOf(d.at); const at=POS[ax][d.at]; const pa=POS[ax==='y'?'x':'y'][d.a], pb=POS[ax==='y'?'x':'y'][d.b]; const s= ax==='y'?{x1:pa,y1:at,x2:pb,y2:at}:{x1:at,y1:pa,x2:at,y2:pb}; el('line',{...s,class:'selline'},G.sel); dimLine(s.x1,s.y1,s.x2,s.y2,-FS*1.3,dimValue(sel,ds[0]),cls(ds[0])); }
+  if (sel.t==='room'){ const b=roomBox(sel.o); el('rect',{x:b.x,y:b.y,width:b.w,height:b.h,class:'selbox'},G.sel);
+    dimLine(b.x,b.y,b.x+b.w,b.y,FS*1.1,b.w,cls(ds[0])); dimLine(b.x,b.y,b.x,b.y+b.h,FS*1.1,b.h,cls(ds[1]));
+    (sel.o.extra||[]).forEach((e,i)=>{ const d=ds[2+i]; const key=d.key; const [ax,p,q]=key.split(':');
+      if (ax==='x'){ const y=b.y+b.h*0.5; dimLine(POS.x[p],y,POS.x[q],y,0,spanLen(key),cls(d)); } else { const x=b.x+b.w*0.5; dimLine(x,POS.y[p],x,POS.y[q],0,spanLen(key),cls(d)); } });
+  }
+  if (sel.t==='obj' && PIL[sel.o.id]){ const o=sel.o, g=objGeom(o); el('rect',{x:g.x,y:g.y,width:g.w,height:g.h,class:'selbox'},G.sel);
+    const cy=g.y+g.h/2; ds.forEach((d,i)=>{ if (d.type!=='span') return; const [,p,q]=d.key.split(':'); dimLine(POS.x[p],cy,POS.x[q],cy,i===0?-FS*1.1:0,spanLen(d.key),cls(d)); }); return; }
+  if (sel.t==='obj'){ const o=sel.o, g=objGeom(o), R=roomBox(ROOM[o.room]), s=objVals(o.id);
+    el('rect',{x:g.x,y:g.y,width:g.w,height:g.h,class:'selbox'},G.sel);
+    if (o.kind==='tvv') dimLine(g.x,g.y,g.x,g.y+g.h,-FS*1.0,g.h,cls(ds[0]));
+    else dimLine(g.x,g.y,g.x+g.w,g.y,-FS*1.0,g.w,cls(ds[0]));
+    if (ds[1].f==='h') dimLine(g.x,g.y,g.x,g.y+g.h,-FS*1.0,g.h,cls(ds[1]));
+    const gxD=ds.find(d=>d.f==='gx'), gyD=ds.find(d=>d.f==='gy'); const my=g.y+g.h/2, mx=g.x+g.w/2;
+    const sx=s.sx||o.sx, sy=s.sy||o.sy;
+    if (sx==='l') dimLine(R.x,my,g.x,my,0,g.x-R.x,cls(gxD)); else dimLine(g.x+g.w,my,R.x+R.w,my,0,R.x+R.w-g.x-g.w,cls(gxD));
+    if (sy==='t') dimLine(mx,R.y,mx,g.y,0,g.y-R.y,cls(gyD)); else dimLine(mx,g.y+g.h,mx,R.y+R.h,0,R.y+R.h-g.y-g.h,cls(gyD));
+  }
+}
+
+/* ---------- view: pan and zoom ---------- */
+const BOUNDS = (()=>{ const xs=Object.values(EST.x), ys=Object.values(EST.y); return {x:Math.min(...xs),y:Math.min(...ys),w:Math.max(...xs)-Math.min(...xs),h:Math.max(...ys)-Math.min(...ys)}; })();
+let VB = null, userMoved = false;
+function fit(){ const xs=Object.values(POS.x).map(v=>-v), ys=Object.values(POS.y).map(v=>-v); const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const r=svg.getBoundingClientRect(); const pad=Math.max(x1-x0,y1-y0)*0.06; let w=x1-x0+pad*2, h=y1-y0+pad*2; const ar=(r.width||800)/(r.height||500);
+  if (w/h<ar) w=h*ar; else h=w/ar; VB={x:(x0+x1)/2-w/2,y:(y0+y1)/2-h/2,w,h}; applyVB(); }
+function applyVB(){ svg.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`); const r=svg.getBoundingClientRect(); const mpp=VB.w/(r.width||800); const nf=Math.min(Math.max(8.5*mpp,25),450); if (Math.abs(nf-FS)/FS>0.04){ FS=nf; render(); } }
+function zoomAt(f,cx,cy){ userMoved=true; const r=svg.getBoundingClientRect(); const px=VB.x+(cx-r.left)/r.width*VB.w, py=VB.y+(cy-r.top)/r.height*VB.h; const nw=Math.min(Math.max(VB.w*f,800),BOUNDS.w*4); const k=nw/VB.w; VB={x:px-(px-VB.x)*k,y:py-(py-VB.y)*k,w:nw,h:VB.h*k}; applyVB(); }
+const ptrs=new Map(); let dragStart=null, moved=false, pinch=null;
+svg.addEventListener('pointerdown',e=>{ svg.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=false;
+  if (ptrs.size===1) dragStart={x:e.clientX,y:e.clientY,vb:{...VB}};
+  if (ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y),vb:{...VB}}; moved=true; userMoved=true; } });
+svg.addEventListener('pointermove',e=>{ if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); const r=svg.getBoundingClientRect();
+  if (ptrs.size===2 && pinch){ const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); const cx=(a.x+b.x)/2, cy=(a.y+b.y)/2; VB={...pinch.vb}; const f=pinch.d/Math.max(d,1); const px=VB.x+(cx-r.left)/r.width*VB.w, py=VB.y+(cy-r.top)/r.height*VB.h; const nw=Math.min(Math.max(VB.w*f,800),BOUNDS.w*4); const k=nw/VB.w; VB={x:px-(px-VB.x)*k,y:py-(py-VB.y)*k,w:nw,h:VB.h*k}; applyVB(); return; }
+  if (ptrs.size===1 && dragStart){ const dx=e.clientX-dragStart.x, dy=e.clientY-dragStart.y; if (Math.hypot(dx,dy)>6) moved=true; if (moved){ userMoved=true; svg.classList.add('dragging'); VB={...dragStart.vb,x:dragStart.vb.x-dx/r.width*dragStart.vb.w,y:dragStart.vb.y-dy/r.height*dragStart.vb.h}; applyVB(); } } });
+function endPtr(e){ if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); svg.classList.remove('dragging');
+  if (ptrs.size===0){ if (!moved && e.type==='pointerup') tapAt(e.clientX,e.clientY); dragStart=null; pinch=null; }
+  else if (ptrs.size===1){ const p=[...ptrs.values()][0]; dragStart={x:p.x,y:p.y,vb:{...VB}}; pinch=null; } }
+svg.addEventListener('pointerup',endPtr); svg.addEventListener('pointercancel',endPtr);
+svg.addEventListener('wheel',e=>{ e.preventDefault(); zoomAt(Math.exp(e.deltaY*0.0015),e.clientX,e.clientY); },{passive:false});
+document.getElementById('zin').onclick=()=>{ const r=svg.getBoundingClientRect(); zoomAt(0.7,r.left+r.width/2,r.top+r.height/2); };
+document.getElementById('zout').onclick=()=>{ const r=svg.getBoundingClientRect(); zoomAt(1/0.7,r.left+r.width/2,r.top+r.height/2); };
+document.getElementById('zfit').onclick=()=>{ fit(); userMoved=false; };
+function tapAt(x,y){
+  // prefer walls and doors near the tap, then objects, then rooms
+  const hits = document.elementsFromPoint(x,y).map(n=>n.closest&&n.closest('[data-sel]')).filter(Boolean);
+  const rank = id => id.startsWith('wall:')?0:id.startsWith('door:')?1:id.startsWith('obj:')?2:3;
+  const ids=[...new Set(hits.map(h=>h.getAttribute('data-sel')))].sort((a,b)=>rank(a)-rank(b));
+  if (!ids.length){ select(null); return; }
+  // among rooms, pick the smallest
+  let id=ids[0]; if (id.startsWith('room:')){ const rs=ids.filter(i=>i.startsWith('room:')).map(i=>ROOM[i.slice(5)]); rs.sort((a,b)=>{const A=roomBox(a),B=roomBox(b);return A.w*A.h-B.w*B.h;}); id='room:'+rs[0].id; }
+  select(parseSel(id), true);
+}
+function parseSel(id){ const [t,k]=id.split(':'); if (t==='room') return {t,o:ROOM[k]}; if (t==='wall') return {t,o:WALLS.find(w=>w.id===k)}; if (t==='door') return {t,o:DOORS.find(d=>d.id===k)}; if (t==='obj') return {t,o:OBJ[k]}; return null; }
+
+/* ---------- panel ---------- */
+const panel=document.getElementById('panel');
+const TYPE_NAME={wall:'Solid wall',glass:'Glass partition',window:'External windows'};
+function describe(k){ const r=VAL[k]; if (!r) return {cls:'',txt:''};
+  const extra=(r.ignored&&r.ignored.length?' Skipped words: '+r.ignored.join(' ')+'.':'');
+  if (r.v!=null && r.v>0) return {cls:'',txt:'= '+fmt(r.v)+' m'+(r.rough?' (rough)':'')+'.'+extra};
+  if (r.missing) return {cls:'warn',txt:'Saved as typed. Needs a size for '+r.missing.join(' and ')+' (set it under All items).'+extra};
+  return {cls:'warn',txt:'Saved as typed. I could not read it as a length yet, so the plan keeps its estimate. Claude can work it out later.'}; }
+function select(sel,focus){ selected=sel; activeDim=0; render(); renderPanel(focus); }
+function renderPanel(focus){
+  panel.replaceChildren();
+  if (!selected){ renderOverview(); return; }
+  const sel=selected, o=sel.o, ds=dimsFor(sel), st=selStatus(sel);
+  const typ = sel.t==='wall'?TYPE_NAME[o.type]:sel.t==='door'?'Door':sel.t==='room'?'Room':PIL[o.id]?'Structural pillar':'Furniture';
+  const head=document.createElement('div'); head.className='head';
+  head.innerHTML=`<div class="eyebrow">${typ}</div><h2></h2><div class="row"><span class="chip ${st.bad?'bad':st.pend?'warn':st.m===st.n?'ok':''}">${st.bad?'Numbers disagree':st.pend?'Typed, not worked out yet':st.m===st.n?'Measured':st.m+' of '+st.n+' measured'}</span><button class="btn small" id="backBtn">All items</button></div>`;
+  head.querySelector('h2').textContent=o.name; panel.appendChild(head);
+  head.querySelector('#backBtn').onclick=()=>select(null);
+  ds.forEach((d,i)=>{
+    const ent=ENT(d.key), meas=MV(d.key), val=dimValue(sel,d); const bad=CONFLICT.has(d.key);
+    const box=document.createElement('div'); box.className='dim'+(bad?' bad':meas!=null?' ok':ent?' pend':'');
+    const id='in-'+d.key.replace(/[^a-zA-Z0-9]/g,'-');
+    box.innerHTML=`<label for="${id}"><span></span><small></small></label><div class="entry"><input id="${id}" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next"><button class="btn small" data-clear>Clear</button></div><div class="hint"></div>`;
+    box.querySelector('label span').textContent=d.label+(d.opt?' (optional)':'');
+    box.querySelector('label small').textContent = meas!=null ? 'measured' : ent ? 'typed' : val!=null ? 'plan shows '+fmt(val)+' m' : '';
+    const inp=box.querySelector('input'), hint=box.querySelector('.hint');
+    inp.value = ent?state.e[d.key].raw:''; inp.placeholder = d.type==='thick'?'e.g. 4 in 1/32':'e.g. 116 in - 3/16, 4S + 1L, 2.4m';
+    if (bad){ hint.className='hint bad'; hint.textContent=`The plan can only fit ${fmt(val)} m with your other numbers. Re-check this or a connected length.`; }
+    else if (ent){ const ds_=describe(d.key); hint.className='hint '+ds_.cls; hint.textContent=ds_.txt; }
+    if (d.f==='gx'||d.f==='gy'){
+      const s=objVals(o.id); const cur = d.f==='gx'?(s.sx||o.sx):(s.sy||o.sy);
+      const opts = d.f==='gx'?[['r','Left wall'],['l','Right wall']]:[['b','Top wall'],['t','Bottom wall']];
+      const side=document.createElement('div'); side.className='side'; side.innerHTML='Measure from <span class="seg"></span>';
+      opts.forEach(([k,lab])=>{ const b=document.createElement('button'); b.textContent=lab; b.className=cur===k?'on':''; b.onclick=()=>{ const g=objGeom(o); pushHistory(); const so=state.obj[o.id]=state.obj[o.id]||{}; const R=roomBox(ROOM[o.room]);
+        if (d.f==='gx'){ so.sx=k; if (MV(d.key)!=null) state.e[d.key]={raw:fmt(k==='l'?g.x-R.x:R.x+R.w-g.x-g.w)+' m',at:Date.now()}; } else { so.sy=k; if (MV(d.key)!=null) state.e[d.key]={raw:fmt(k==='t'?g.y-R.y:R.y+R.h-g.y-g.h)+' m',at:Date.now()}; }
+        commit(); }; side.querySelector('.seg').appendChild(b); });
+      box.insertBefore(side,box.querySelector('.entry'));
+    }
+    inp.addEventListener('focus',()=>{ activeDim=i; panel.querySelectorAll('.dim').forEach((n,j)=>n.classList.toggle('active',j===i)); });
+    inp.addEventListener('input',()=>{ const t=inp.value.trim(); if (!t){ hint.textContent=''; return; } const saveE=state.e[d.key]; state.e[d.key]={raw:t}; derive(); const ds_=describe(d.key); if (saveE) state.e[d.key]=saveE; else delete state.e[d.key]; derive(); hint.className='hint '+ds_.cls; hint.textContent=ds_.txt; });
+    const save=()=>{ const t=inp.value.trim(); if (!t){ if (ent) setDim(sel,d,null); return; } if (!ent || t!==state.e[d.key].raw) setDim(sel,d,t); };
+    inp.addEventListener('keydown',e=>{ if (e.key==='Enter'){ e.preventDefault(); save(); focusNextInput(i); } });
+    inp.addEventListener('change',save);
+    box.querySelector('[data-clear]').onclick=()=>{ if (ent) setDim(sel,d,null); };
+    panel.appendChild(box);
+  });
+  if (sel.t==='wall'){ const sibs=WALLS.filter(x=>x.type===o.type&&x.id!==o.id); const has=ENT('t:'+o.id); const wrap=document.createElement('div'); wrap.className='actions';
+    const b=document.createElement('button'); b.className='btn small'; b.textContent=`Use this thickness for all ${sibs.length} other ${o.type==='glass'?'glass partitions':o.type==='window'?'window walls':'solid walls'}`; b.disabled=!has;
+    b.onclick=()=>{ pushHistory(); sibs.forEach(x=>{ state.e['t:'+x.id]={raw:state.e['t:'+o.id].raw,at:Date.now()}; }); commit(); toast('Thickness copied to '+sibs.length+' items'); };
+    wrap.appendChild(b); if (o.id==='g2'){ const c=document.createElement('button'); c.className='btn small'; c.textContent='Cabinets along this glass'; c.onclick=()=>select({t:'obj',o:OBJ.st},true); wrap.appendChild(c); } panel.appendChild(wrap); }
+  if (sel.t==='obj' && sel.o.grp){ const sibs=OBJS.filter(x=>x.grp===sel.o.grp&&x.id!==sel.o.id); const FF=['w','h','d','len'];
+    const has = FF.some(f=>ENT('o:'+o.id+':'+f)); if (sibs.length){ const wrap=document.createElement('div'); wrap.className='actions';
+      const b=document.createElement('button'); b.className='btn small'; b.textContent=`Use this size for the ${sibs.length} matching items`; b.disabled=!has;
+      b.onclick=()=>{ pushHistory(); sibs.forEach(x=>{ FF.forEach(f=>{ const k='o:'+o.id+':'+f; if (ENT(k)) state.e['o:'+x.id+':'+f]={raw:state.e[k].raw,at:Date.now()}; }); }); commit(); toast('Size copied to '+sibs.length+' items'); };
+      wrap.appendChild(b); const n=document.createElement('span'); n.className='note'; n.textContent=has?'':'Enter a size first.'; wrap.appendChild(n); panel.appendChild(wrap); } }
+  const nt=document.createElement('div'); nt.className='head'; nt.innerHTML='<label class="eyebrow" for="noteBox">Notes for the CAD drawing</label><textarea id="noteBox" placeholder="For example: not including the divider, socket 0.6 m from the left"></textarea>';
+  const ta=nt.querySelector('textarea'); ta.value=state.notes[selId(sel)]||''; ta.addEventListener('change',()=>{ pushHistory(); if (ta.value.trim()) state.notes[selId(sel)]=ta.value; else delete state.notes[selId(sel)]; persist(); toast('Note saved'); });
+  panel.appendChild(nt);
+  const nav=document.createElement('div'); nav.className='actions'; nav.innerHTML='<button class="btn primary" id="pNext">Next to measure</button>'; nav.querySelector('#pNext').onclick=goNext; panel.appendChild(nav);
+  if (focus){ const f=panel.querySelectorAll('.dim input')[activeDim||0]; if (f && window.matchMedia('(min-width: 761px)').matches) setTimeout(()=>f.focus({preventScroll:true}),30); }
+}
+function focusNextInput(i){ const ins=panel.querySelectorAll('.dim input'); const n=ins[i+1]; if (n) n.focus(); else goNext(); }
+function renderOverview(){
+  const ts=tasks(); const done=ts.filter(t=>t.done).length; const nBad=CONFLICT.size;
+  const h=document.createElement('div'); h.className='head';
+  h.innerHTML=`<div class="eyebrow">Site measurement</div><h2>${done} of ${ts.length} lengths measured</h2>${nBad?`<span class="chip bad">${nBad} number${nBad>1?'s':''} disagree with the rest</span>`:''}`;
+  panel.appendChild(h);
+  const how=document.createElement('ol'); how.className='howto';
+  how.innerHTML='<li>Tap a wall, door, room or pillar on the plan.</li><li>Type the length the way you measured it, for example 116 in - 3/16, 4S + 1L + 51.1cm, 5 foot 2 inches or 2.4m. Your words are kept exactly as typed.</li><li>The plan redraws to fit and shows everything in metres. Green means measured, grey is still the estimate from the layout, amber means typed but not worked out yet.</li><li>Red means two numbers cannot both be true. Re-check one of them.</li><li>Tap Export for CAD when done. Entries save as you type.</li>';
+  panel.appendChild(how);
+  // own units (tile sizes) and plain numbers
+  const un=document.createElement('div'); un.className='head';
+  un.innerHTML='<div class="eyebrow">Tile sizes and your own units</div><div class="units"></div><div class="side">Plain numbers with no unit mean <select id="defUnit"><option value="auto">guess (2.4 = m, 2400 = mm)</option><option value="m">metres</option><option value="cm">cm</option><option value="mm">mm</option><option value="in">inches</option><option value="ft">feet</option></select></div>';
+  const names=new Set(['L','S']); for (const k in state.e) if (k.startsWith('u:')) names.add(k.slice(2)); for (const k in VAL) (VAL[k].missing||[]).forEach(n=>names.add(n));
+  const UL={L:'L = length of 1 tile',S:'S = width of 1 tile'};
+  [...names].forEach(n=>{ const k='u:'+n; const row=document.createElement('div'); row.className='dim'+(MV(k)!=null?' ok':''); const id='unit-'+n;
+    row.innerHTML=`<label for="${id}"><span></span><small></small></label><div class="entry"><input id="${id}" inputmode="text" autocomplete="off" spellcheck="false"></div>`;
+    row.querySelector('label span').textContent=UL[n]||(n+' = ?'); row.querySelector('label small').textContent=MV(k)!=null?'= '+fmt(MV(k))+' m':'not set';
+    const inp=row.querySelector('input'); inp.value=ENT(k)?state.e[k].raw:''; inp.placeholder='e.g. 4 ft - 1/16 in';
+    inp.addEventListener('change',()=>{ pushHistory(); const t=inp.value.trim(); if (t) state.e[k]={raw:t,at:Date.now()}; else delete state.e[k]; commit(); });
+    un.querySelector('.units').appendChild(row); });
+  const du=un.querySelector('#defUnit'); du.value=state.defUnit||'auto'; du.onchange=()=>{ pushHistory(); state.defUnit=du.value; commit(); };
+  panel.appendChild(un);
+  const sv=document.createElement('div'); sv.className='note'; sv.id='saveNote'; sv.textContent=saveMsg; panel.appendChild(sv);
+  const groups={}; allSels().forEach(sel=>{ let g; if (sel.t==='room') g=sel.o.grp; else if (sel.t==='wall') g=sel.o.type==='window'?'External windows':'Walls and glass'; else if (sel.t==='door') g='Doors'; else g='Furniture and fixtures'; (groups[g]=groups[g]||[]).push(sel); });
+  const list=document.createElement('div'); list.className='list';
+  ['Walls and glass','Doors','Rooms','External windows','Lift lobby and core','Furniture and fixtures'].forEach(g=>{ if (!groups[g]) return;
+    const t=document.createElement('div'); t.className='group-t'; t.textContent=g; list.appendChild(t);
+    groups[g].forEach(sel=>{ const st=selStatus(sel); const b=document.createElement('button'); b.className='item';
+      b.innerHTML='<span></span><span class="st"></span>'; b.firstChild.textContent=sel.o.name; const s=b.lastChild;
+      s.textContent = st.bad?'check':st.pend?'typed':st.m===st.n?'done':st.m?st.m+'/'+st.n:'to do'; s.className='st'+(st.bad?' bad':st.pend?' warn':st.m===st.n?' ok':'');
+      b.onclick=()=>{ select(sel,true); centreOn(sel); }; list.appendChild(b); }); });
+  panel.appendChild(list);
+  const act=document.createElement('div'); act.className='actions'; act.style.marginTop='8px';
+  act.innerHTML='<button class="btn small" id="resetBtn">Clear all measurements</button>';
+  act.querySelector('#resetBtn').onclick=()=>confirmBox('Clear every measurement and note? You can undo this straight after.','Clear all',()=>{ pushHistory(); for (const k in state.e) if (!k.startsWith('u:')) delete state.e[k]; state.obj={}; state.notes={}; commit(); });
+  panel.appendChild(act);
+}
+function centreOn(sel){ let b; if (sel.t==='room') b=roomBox(sel.o); else if (sel.t==='obj') b=objGeom(sel.o); else { let s; if (sel.t==='wall') s=wallSeg(sel.o); else { const d=sel.o, ax=axisOf(d.at), at=POS[ax][d.at], pa=POS[ax==='y'?'x':'y'][d.a], pb=POS[ax==='y'?'x':'y'][d.b]; s= ax==='y'?{x1:pa,y1:at,x2:pb,y2:at}:{x1:at,y1:pa,x2:at,y2:pb}; } b={x:Math.min(s.x1,s.x2),y:Math.min(s.y1,s.y2),w:Math.abs(s.x2-s.x1),h:Math.abs(s.y2-s.y1)}; }
+  const cx=-(b.x+b.w/2), cy=-(b.y+b.h/2); const vis = cx>VB.x+VB.w*0.1 && cx<VB.x+VB.w*0.9 && cy>VB.y+VB.h*0.1 && cy<VB.y+VB.h*0.9; if (!vis){ VB={...VB,x:cx-VB.w/2,y:cy-VB.h/2}; applyVB(); } }
+function goNext(){ const ts=tasks(); const cur=selected?selId(selected):''; let i=ts.findIndex(t=>!t.done && selId(t.sel)!==cur); if (i<0) i=ts.findIndex(t=>!t.done); if (i<0){ toast('Everything is measured'); select(null); return; } const sel=ts[i].sel; const ds=dimsFor(sel); select(sel,false); activeDim=ds.findIndex(d=>!d.opt&&!ENT(d.key)); renderPanel(true); centreOn(sel); }
+
+/* ---------- edits, undo, save ---------- */
+function setDim(sel,d,raw){ pushHistory();
+  if (raw==null || String(raw).trim()==='') delete state.e[d.key]; else state.e[d.key]={raw:String(raw).trim(),at:Date.now()};
+  commit(); }
+function pushHistory(){ history.push(JSON.stringify(state)); if (history.length>60) history.shift(); document.getElementById('undoBtn').disabled=false; }
+document.getElementById('undoBtn').onclick=()=>{ const s=history.pop(); if (!s) return; state=migrate(JSON.parse(s)); document.getElementById('undoBtn').disabled=!history.length; commit(true); toast('Undone'); };
+function commit(){ state.updatedAt=Date.now(); solve(); render(); const ae=document.activeElement&&document.activeElement.id; renderPanel(false); if (ae){ const n=document.getElementById(ae); if (n) n.focus({preventScroll:true}); } persist(); }
+let db=null, saveTimer=null, saveMsg='Saved on this device.';
+function setSaveMsg(m){ saveMsg=m; const n=document.getElementById('saveNote'); if (n) n.textContent=m; }
+function persist(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(state)); }catch(e){}
+  if (!db) return; clearTimeout(saveTimer); saveTimer=setTimeout(async()=>{ try{ await db.doc('survey/state').set(JSON.parse(JSON.stringify(state))); setSaveMsg('Saved online. Claude can read these numbers to build the CAD file.'); }catch(e){ setSaveMsg('Saved on this device only. Online save failed, so export before you clear the browser.'); } },700); }
+function updateProgress(){ const ts=tasks(); const done=ts.filter(t=>t.done).length; document.getElementById('progTxt').textContent=done+' / '+ts.length; document.getElementById('barFill').style.width=(ts.length?done/ts.length*100:0)+'%'; }
+document.getElementById('nextBtn').onclick=goNext;
+document.getElementById('labelsSel').onchange=e=>{ showAll=+e.currentTarget.value; render(); };
+let toastT; function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),1600); }
+function confirmBox(msg,yes,fn){ const m=document.createElement('div'); m.className='modal'; m.innerHTML='<div class="box"><p></p><div class="actions"><button class="btn primary" data-y></button><button class="btn" data-n>Cancel</button></div></div>'; m.querySelector('p').textContent=msg; m.querySelector('[data-y]').textContent=yes; m.querySelector('[data-y]').onclick=()=>{ m.remove(); fn(); }; m.querySelector('[data-n]').onclick=()=>m.remove(); document.body.appendChild(m); }
+
+/* ---------- export ---------- */
+function snapshot(){
+  const M=v=>Math.round(v)/1000; const raw=k=>ENT(k)?state.e[k].raw:'';
+  const out={project:'ARC Group Hong Kong office',units:'m',origin:'Left end of the office front wall (main entrance side) in the original layout. x and y here are the original layout axes (y runs from the front wall towards the windows). The DXF is turned 180 degrees to match the screen: windows at the top, lift lobby at the bottom.',
+    note:'Single-line plan: each wall is drawn on the line where it was measured (inside faces). "estimated" items still come from the PowerPoint layout. "as_typed" is exactly what was entered on site.',
+    tile_sizes:{L:{as_typed:raw('u:L'),m:MV('u:L')!=null?+(MV('u:L')/1000).toFixed(4):null},S:{as_typed:raw('u:S'),m:MV('u:S')!=null?+(MV('u:S')/1000).toFixed(4):null}},
+    exported:new Date().toISOString(), gridlines:{x:{},y:{}}, walls:[], doors:[], rooms:[], furniture:[], notes:state.notes, raw:state};
+  for (const ax of ['x','y']) for (const k in POS[ax]) out.gridlines[ax][k]=M(POS[ax][k]);
+  WALLS.forEach(w=>{ const s=wallSeg(w), k=spanKey(w.a,w.b), tk='t:'+w.id; out.walls.push({id:w.id,name:w.name,type:w.type,x1:M(s.x1),y1:M(s.y1),x2:M(s.x2),y2:M(s.y2),length:M(spanLen(k)),status:keyStatus(k),as_typed:raw(k),thickness:MV(tk)!=null?+(MV(tk)/1000).toFixed(4):null,thickness_as_typed:raw(tk)}); });
+  DOORS.forEach(d=>{ const ax=axisOf(d.at), at=POS[ax][d.at], pa=POS[ax==='y'?'x':'y'][d.a], pb=POS[ax==='y'?'x':'y'][d.b]; const k=spanKey(d.a,d.b); const s= ax==='y'?{x1:pa,y1:at,x2:pb,y2:at}:{x1:at,y1:pa,x2:at,y2:pb}; const hp=d.hinge==='a'?[s.x1,s.y1]:[s.x2,s.y2];
+    out.doors.push({id:d.id,name:d.name,x1:M(s.x1),y1:M(s.y1),x2:M(s.x2),y2:M(s.y2),width:M(spanLen(k)),hinge:{x:M(hp[0]),y:M(hp[1])},status:keyStatus(k),as_typed:raw(k)}); });
+  ROOMS.forEach(r=>{ const b=roomBox(r); const kw=spanKey(r.l,r.r), kd=spanKey(r.t,r.b); out.rooms.push({id:r.id,name:r.name,x:M(b.x),y:M(b.y),width:M(b.w),depth:M(b.h),area_m2:+(b.w*b.h/1e6).toFixed(2),width_status:keyStatus(kw),depth_status:keyStatus(kd),width_as_typed:raw(kw),depth_as_typed:raw(kd)}); });
+  OBJS.forEach(o=>{ const g=objGeom(o); const ks=['w','h','d','len'].map(f=>'o:'+o.id+':'+f); const typed=ks.filter(ENT).map(k=>k.split(':')[2]+': '+state.e[k].raw).join('; ');
+    out.furniture.push({id:o.id,name:o.name,room:ROOM[o.room].name,shape:SQ.has(o.id)?'square':(o.kind==='pillar'||o.kind==='round')?'circle':'rectangle',x:M(g.x),y:M(g.y),width:M(g.w),depth:M(g.h),size_status:PIL[o.id]?keyStatus(spanKey(PIL[o.id].L,PIL[o.id].R)):ks.some(k=>MV(k)!=null)?'measured':ks.some(ENT)?'typed, not worked out yet':'estimated',position_status:(MV('o:'+o.id+':gx')!=null||MV('o:'+o.id+':gy')!=null)?'measured':'estimated',as_typed:typed}); });
+  return out; }
+function csvText(S){ const rows=[['element','type','dimension','value_m','status','as_typed','x1','y1','x2','y2','notes']]; const q=v=>{ v=v==null?'':String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+  S.walls.forEach(w=>{ rows.push([w.name,w.type,'length',w.length,w.status,w.as_typed,w.x1,w.y1,w.x2,w.y2,state.notes['wall:'+w.id]]); if (w.thickness_as_typed) rows.push([w.name,w.type,'thickness',w.thickness,w.thickness!=null?'measured':'typed, not worked out yet',w.thickness_as_typed,'','','','','']); });
+  S.doors.forEach(d=>rows.push([d.name,'door','opening width',d.width,d.status,d.as_typed,d.x1,d.y1,d.x2,d.y2,state.notes['door:'+d.id]]));
+  S.rooms.forEach(r=>{ rows.push([r.name,'room','width',r.width,r.width_status,r.width_as_typed,r.x,r.y,+(r.x+r.width).toFixed(3),r.y,state.notes['room:'+r.id]]); rows.push([r.name,'room','depth',r.depth,r.depth_status,r.depth_as_typed,r.x,r.y,r.x,+(r.y+r.depth).toFixed(3),'']); });
+  S.furniture.forEach(f=>{ rows.push([f.name,f.shape,'width',f.width,f.size_status,f.as_typed,f.x,f.y,+(f.x+f.width).toFixed(3),+(f.y+f.depth).toFixed(3),state.notes['obj:'+f.id]]); if (f.shape!=='circle') rows.push([f.name,f.shape,'depth',f.depth,f.size_status,'','','','','','']); });
+  rows.push(['Tile length (L)','unit','length',S.tile_sizes.L.m,'measured',S.tile_sizes.L.as_typed,'','','','','']); rows.push(['Tile width (S)','unit','length',S.tile_sizes.S.m,'measured',S.tile_sizes.S.as_typed,'','','','','']);
+  return rows.map(r=>r.map(q).join(',')).join('\r\n'); }
+function dxfText(S){ const L=[]; const p=(...a)=>L.push(...a.map(String)); const X=x=>-x, Y=y=>y; /* turned 180 degrees to match the screen */ const f=n=>(+n).toFixed(4);
+  p('0','SECTION','2','HEADER','9','$INSUNITS','70','6','0','ENDSEC'); /* metres */
+  const layers=[['WALL',7],['GLASS',5],['WINDOW',4],['DOOR',3],['ROOM',8],['CORE',8],['FURNITURE',2],['PILLAR',1],['TEXT',7],['DIM-MEASURED',3],['DIM-CALCULATED',8],['DIM-TOTAL',6]];
+  p('0','SECTION','2','TABLES','0','TABLE','2','LAYER','70',layers.length); layers.forEach(([n,c])=>p('0','LAYER','2',n,'70','0','62',c,'6','CONTINUOUS')); p('0','ENDTAB','0','ENDSEC');
+  p('0','SECTION','2','ENTITIES');
+  const line=(l,x1,y1,x2,y2)=>p('0','LINE','8',l,'10',f(X(x1)),'20',f(Y(y1)),'30','0','11',f(X(x2)),'21',f(Y(y2)),'31','0');
+  const rect=(l,x,y,w,h)=>{ line(l,x,y,x+w,y); line(l,x+w,y,x+w,y+h); line(l,x+w,y+h,x,y+h); line(l,x,y+h,x,y); };
+  const text=(x,y,h,s)=>p('0','TEXT','8','TEXT','10',f(X(x)),'20',f(Y(y)),'30','0','40',f(h),'1',s.replace(/[^\x20-\x7e]/g,''));
+  S.walls.forEach(w=>{ const l=w.type.toUpperCase(); const t=w.thickness; if (t){ const hz=w.y1===w.y2; const ox=hz?0:t/2, oy=hz?t/2:0; line(l,w.x1-ox,w.y1-oy,w.x2-ox,w.y2-oy); line(l,w.x1+ox,w.y1+oy,w.x2+ox,w.y2+oy); } else line(l,w.x1,w.y1,w.x2,w.y2); });
+  S.doors.forEach(d=>{ const D=DOORS.find(x=>x.id===d.id); const ax=axisOf(D.at); const H=[d.hinge.x,d.hinge.y]; const O=(H[0]===d.x1&&H[1]===d.y1)?[d.x2,d.y2]:[d.x1,d.y1]; const w=d.width; const E= ax==='y'?[H[0],H[1]+D.swing*w]:[H[0]+D.swing*w,H[1]];
+    line('DOOR',H[0],H[1],E[0],E[1]); const a1=Math.atan2(Y(E[1])-Y(H[1]),X(E[0])-X(H[0]))*180/Math.PI, a2=Math.atan2(Y(O[1])-Y(H[1]),X(O[0])-X(H[0]))*180/Math.PI; let s=a1,e=a2; if (((e-s)%360+360)%360>180){ [s,e]=[e,s]; }
+    p('0','ARC','8','DOOR','10',f(X(H[0])),'20',f(Y(H[1])),'30','0','40',f(w),'50',f(s),'51',f(e)); });
+  S.rooms.forEach(r=>{ const R=ROOM[r.id]; if (R.k==='core') rect('CORE',r.x,r.y,r.width,r.depth); else if (R.k==='joinery') rect('FURNITURE',r.x,r.y,r.width,r.depth); if (R.k!=='joinery') text(r.x+r.width*0.92,r.y+r.depth/2,Math.max(0.12,Math.min(0.25,r.width/25)),r.name); });
+  S.furniture.forEach(o=>{ if (o.shape==='circle') p('0','CIRCLE','8',OBJ[o.id].kind==='pillar'?'PILLAR':'FURNITURE','10',f(X(o.x+o.width/2)),'20',f(Y(o.y+o.depth/2)),'30','0','40',f(o.width/2)); else rect(OBJ[o.id].kind==='pillar'?'PILLAR':'FURNITURE',o.x,o.y,o.width,o.depth); });
+  /* dimensions, drafted the usual architectural way:
+     outside the building: running strings of each part along every side, then the overall total furthest out;
+     inside the building: measured lengths that are not already on an outside string */
+  const m=v=>v/1000, GX=k=>m(POS.x[k]), GY=k=>m(POS.y[k]), TH=0.12, TK=0.08;
+  const lab=(key)=>{ const v=spanLen(key)/1000; const typed=!!ENT(key); return {txt:(typed?'':'~')+v.toFixed(3), layer:typed?'DIM-MEASURED':'DIM-CALCULATED'}; };
+  const dtext=(layer,x,y,rot,s)=>p('0','TEXT','8',layer,'10',f(X(x)),'20',f(Y(y)),'30','0','40',f(TH),'1',s,'50',f(rot),'72','1','73','1','11',f(X(x)),'21',f(Y(y)),'31','0');
+  // horizontal dim between x1 and x2 at height y, extension lines back to y0 (null = none)
+  const dimH=(layer,x1,x2,y,y0,s,ex=1)=>{ line(layer,x1,y,x2,y); [x1,x2].forEach(x=>{ line(layer,x-TK/2,y-TK/2,x+TK/2,y+TK/2); if (y0!=null) line(layer,x,y0,x,y); }); dtext(layer,(x1+x2)/2,y+(y>y0?1:-1)*TH*1.1*ex,0,s); };
+  const dimV=(layer,y1,y2,x,x0,s,ex=1)=>{ line(layer,x,y1,x,y2); [y1,y2].forEach(y=>{ line(layer,x-TK/2,y-TK/2,x+TK/2,y+TK/2); if (x0!=null) line(layer,x0,y,x,y); }); dtext(layer,x+(x>x0?1:-1)*TH*1.1*ex,(y1+y2)/2,90,s); };
+  const xL=GX('X0'), xR=GX('X9'), yF=GY('YF'), yB=GY('Y9'), onOut=new Set();
+  let sm=0; const chainH=(names,y,y0)=>{ sm=0; for (let i=0;i<names.length-1;i++){ const k=spanKey(names[i],names[i+1]); onOut.add(k); const t=lab(k); const a=GX(names[i]),b=GX(names[i+1]); sm=Math.abs(b-a)<0.6?sm+1:0; dimH(t.layer,a,b,y,y0,t.txt,sm?-1.2:1); } };
+  const chainV=(names,x,x0)=>{ sm=0; for (let i=0;i<names.length-1;i++){ const k=spanKey(names[i],names[i+1]); onOut.add(k); const t=lab(k); const a=GY(names[i]),b=GY(names[i+1]); sm=Math.abs(b-a)<0.6?sm+1:0; dimV(t.layer,a,b,x,x0,t.txt,sm?-1.2:1); } };
+  const tot=v=>'TOTAL '+v.toFixed(3);
+  // front (entrance side)
+  chainH(['X0','XBB','XSM','X9'],yF-0.6,yF); dimH('DIM-TOTAL',xL,xR,yF-1.1,null,tot(xR-xL)); line('DIM-TOTAL',xL,yF,xL,yF-1.1); line('DIM-TOTAL',xR,yF,xR,yF-1.1);
+  // windows along the top: pillar positions
+  chainH(['X0','P1L','P1R','P2L','P2R','XSM','P3L','P3R','X9'],yB+0.6,yB); dimH('DIM-TOTAL',xL,xR,yB+1.1,null,tot(xR-xL)); line('DIM-TOTAL',xL,yB,xL,yB+1.1); line('DIM-TOTAL',xR,yB,xR,yB+1.1);
+  // big boardroom / eating area side
+  chainV(['YF','YBB','Y9'],xL-0.6,xL); dimV('DIM-TOTAL',yF,yB,xL-1.1,null,tot(yB-yF)); line('DIM-TOTAL',xL,yF,xL-1.1,yF); line('DIM-TOTAL',xL,yB,xL-1.1,yB);
+  // small boardroom / top left room side
+  chainV(['YF','YD1','YSB','YSB2','Y9'],xR+0.6,xR); dimV('DIM-TOTAL',yF,yB,xR+1.1,null,tot(yB-yF)); line('DIM-TOTAL',xR,yF,xR+1.1,yF); line('DIM-TOTAL',xR,yB,xR+1.1,yB);
+  // inside: measured lengths not already shown outside
+  lengthSites().forEach(st=>{ if (onOut.has(st.key) || !ENT(st.key) || MV(st.key)==null) return; onOut.add(st.key); const t=lab(st.key);
+    const hz=Math.abs(st.y2-st.y1)<Math.abs(st.x2-st.x1); const o=m(st.off||0)+(hz?0.35:-0.35);
+    if (hz) dimH(t.layer,m(st.x1),m(st.x2),m(st.y1)+o,null,t.txt); else dimV(t.layer,m(st.y1),m(st.y2),m(st.x1)+o,null,t.txt); });
+  ['w','h'].forEach(fk=>{ const k='o:st:'+fk; if (MV(k)==null) return; const g=objGeom(OBJ.st); const t=(MV(k)/1000).toFixed(3);
+    if (fk==='w') dimH('DIM-MEASURED',m(g.x),m(g.x+g.w),m(g.y+g.h)+0.3,null,t); else dimV('DIM-MEASURED',m(g.y),m(g.y+g.h),m(g.x)-0.3,null,t); });
+  text(xR+1.1,yF-1.6,0.12,'Dimensions in metres. Green: measured on site. Grey with ~: calculated or still estimated from the layout. Magenta: overall totals.');
+  p('0','ENDSEC','0','EOF'); return L.join('\r\n'); }
+// minimal ZIP writer (stored, no compression)
+const CRC=(()=>{ const t=new Uint32Array(256); for (let n=0;n<256;n++){ let c=n; for (let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(u8){ let c=0xFFFFFFFF; for (let i=0;i<u8.length;i++) c=CRC[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function makeZip(files){ const enc=new TextEncoder(); const parts=[], central=[]; let off=0;
+  files.forEach(({name,text})=>{ const nb=enc.encode(name), db_=enc.encode(text), crc=crc32(db_);
+    const h=new DataView(new ArrayBuffer(30)); h.setUint32(0,0x04034b50,true); h.setUint16(4,20,true); h.setUint16(6,0x0800,true); h.setUint16(8,0,true); h.setUint32(14,crc,true); h.setUint32(18,db_.length,true); h.setUint32(22,db_.length,true); h.setUint16(26,nb.length,true);
+    parts.push(new Uint8Array(h.buffer),nb,db_);
+    const c=new DataView(new ArrayBuffer(46)); c.setUint32(0,0x02014b50,true); c.setUint16(4,20,true); c.setUint16(6,20,true); c.setUint16(8,0x0800,true); c.setUint32(16,crc,true); c.setUint32(20,db_.length,true); c.setUint32(24,db_.length,true); c.setUint16(28,nb.length,true); c.setUint32(42,off,true);
+    central.push(new Uint8Array(c.buffer),nb); off+=30+nb.length+db_.length; });
+  const csize=central.reduce((s,a)=>s+a.length,0); const e=new DataView(new ArrayBuffer(22)); e.setUint32(0,0x06054b50,true); e.setUint16(8,files.length,true); e.setUint16(10,files.length,true); e.setUint32(12,csize,true); e.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(e.buffer)],{type:'application/zip'}); }
+let downloads=null;
+document.getElementById('exportBtn').onclick=()=>{
+  const S=snapshot(); const json=JSON.stringify(S,null,2), csv=csvText(S), dxf=dxfText(S); const stamp=new Date().toISOString().slice(0,10);
+  const m=document.createElement('div'); m.className='modal';
+  m.innerHTML=`<div class="box"><h2>Export for CAD</h2><p class="note">The CAD pack is a zip with the DXF drawing (opens in AutoCAD, drawn in metres on layers WALL, GLASS, WINDOW, DOOR, FURNITURE, PILLAR; walls with a thickness get both faces), a CSV of every length, and a JSON file with all coordinates. Estimated items are flagged in the CSV and JSON.</p>
+  <div class="actions"><button class="btn primary" data-z>Save CAD pack (.zip)</button><button class="btn" data-c>Save CSV</button><button class="btn" data-j>Save JSON</button><button class="btn" data-x>Close</button></div>
+  <label class="eyebrow" for="expText">Or copy the CSV</label><textarea id="expText" readonly></textarea><div class="actions"><button class="btn small" data-copy>Copy CSV</button><span class="note" data-msg></span></div></div>`;
+  m.querySelector('textarea').value=csv; const msg=m.querySelector('[data-msg]');
+  const save=async(filename,data)=>{ if (!downloads){ msg.textContent='Saving files is not available in this view. Copy the CSV instead.'; return; } try{ await downloads.save({filename,data}); msg.textContent='Saved '+filename; }catch(e){ msg.textContent = e&&e.code==='declined'?'Save cancelled.':'Could not save here. Copy the CSV instead.'; } };
+  m.querySelector('[data-z]').onclick=()=>save(`ARC-HK-office-${stamp}.zip`,makeZip([{name:'ARC-HK-office.dxf',text:dxf},{name:'ARC-HK-office-lengths.csv',text:csv},{name:'ARC-HK-office.json',text:json}]));
+  m.querySelector('[data-c]').onclick=()=>save(`ARC-HK-office-lengths-${stamp}.csv`,csv);
+  m.querySelector('[data-j]').onclick=()=>save(`ARC-HK-office-${stamp}.json`,json);
+  m.querySelector('[data-x]').onclick=()=>m.remove();
+  m.querySelector('[data-copy]').onclick=()=>{ const ta=m.querySelector('textarea'); navigator.clipboard.writeText(csv).then(()=>msg.textContent='Copied',()=>{ ta.focus(); ta.select(); msg.textContent='Text selected. Copy it with your keyboard or long press.'; }); };
+  m.addEventListener('click',e=>{ if (e.target===m) m.remove(); });
+  document.body.appendChild(m);
+};
+window.__survey={sites:()=>lengthSites().filter(x=>ENT(x.key)&&MV(x.key)!=null).map(x=>({key:x.key,x1:x.x1/1000,y1:x.y1/1000,x2:x.x2/1000,y2:x.y2/1000,v:spanLen(x.key)/1000,raw:state.e[x.key].raw})),snapshot,dxfText,csvText,state:()=>state,setDim,parseSel,dimsFor,evalLen,derive,VAL:()=>VAL};
+
+/* ---------- start ---------- */
+solve(); fit(); render(); renderPanel(false);
+new ResizeObserver(()=>{ if (!userMoved){ fit(); return; } if (VB) { const r=svg.getBoundingClientRect(); const ar=r.width/r.height; if (ar>0&&isFinite(ar)){ VB.h=VB.w/ar; applyVB(); } } }).observe(svg);
+(async()=>{
+  try{ if (!window.claude||!window.claude.use) return;
+    claude.use('downloads').then(d=>{ downloads=d; }).catch(()=>{});
+    const d=await claude.use('db'); if (!d){ setSaveMsg('Saved on this device only. Sign in to claude.ai to save online.'); return; }
+    db=d; const snap=await db.doc('survey/state').get();
+    if (snap.exists){ const s=snap.data(); if (s && (s.e||s.meas) && (s.updatedAt||0) >= (state.updatedAt||0)){ state=migrate(s); solve(); render(); renderPanel(false); try{ localStorage.setItem(LS_KEY,JSON.stringify(state)); }catch(e){} } else if ((state.updatedAt||0)>0) persist(); }
+    else if ((state.updatedAt||0)>0) persist();
+    setSaveMsg('Saved online. Claude can read these numbers to build the CAD file.');
+  }catch(e){ setSaveMsg('Saved on this device only.'); }
+})();
+})();
+</script>
