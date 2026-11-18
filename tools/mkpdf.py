@@ -6,8 +6,9 @@ from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
 from ezdxf.addons.drawing.config import Configuration, ColorPolicy, BackgroundPolicy
 doc=ezdxf.readfile('/mnt/project-files/office-dimensions/arc-hk-office.dxf'); msp=doc.modelspace()
 cfg=Configuration(color_policy=ColorPolicy.BLACK, background_policy=BackgroundPolicy.WHITE, min_lineweight=0.35)
-pages=[('Outline: walls, glass, doors, pillars, cupboards and main sizes',{'WALL','GLASS','WINDOW','DOOR','PILLAR','CUPBOARD','ROOM_NAMES','DIM_TOTAL','DIM_MEASURED'}),
-       ('Furnished plan: desks, tables and chairs',{'WALL','GLASS','WINDOW','DOOR','PILLAR','CUPBOARD','ROOM_NAMES','FURNITURE','CHAIRS'})]
+ALL={'WALL','GLASS','WINDOW','DOOR','PILLAR','CUPBOARD','ROOM_NAMES','FURNITURE','CHAIRS','DIM_TOTAL','DIM_MEASURED'}
+pages=[('Full plan: walls, doors, pillars, cupboards, desks, tables, chairs and sizes',ALL),
+       ('Outline only: walls, glass, doors, pillars, cupboards and sizes',ALL-{'FURNITURE','CHAIRS'})]
 out='/mnt/project-files/office-dimensions/arc-hk-office-plan.pdf'
 with PdfPages(out) as pdf:
     for title,keep in pages:
