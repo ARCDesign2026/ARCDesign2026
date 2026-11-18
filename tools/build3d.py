@@ -65,7 +65,7 @@ _back=pil['y']+pil['depth']; _r=pil['x']+pil['width']
 pil.update(shape='rect',width=round(35.75*0.0254,4),depth=round(47.25*0.0254,4)); pil.update(x=round(_r-pil['width'],4),y=round(_back-pil['depth'],4))
 xbb=ey['width']; d1=[d for d in doors if d['id']=='d2'][0]
 SD=round(0.65*2/3,3)   # user 10:39: sofa 2/3 of the earlier 0.65 m depth
-sofa=dict(depth=SD,a=dict(x=0,y=ey['y'],len=round(pil['y']-0.05-ey['y'],3)),b=dict(x=0,y=ey['y'],len=round(xbb+SD,3)),c=dict(x=round(xbb+5*0.0254,3),y=round(abs(d1['x2']-d1['x1'])*1.5,3),len=round(ey['y']-abs(d1['x2']-d1['x1'])*1.5,3)))
+sofa=dict(depth=SD,a=dict(x=0,y=ey['y'],len=round(pil['y']-ey['y'],3)),b=dict(x=0,y=ey['y'],len=round(xbb+SD,3)),c=dict(x=round(xbb+5*0.0254,3),y=round(abs(d1['x2']-d1['x1'])*1.5,3),len=round(ey['y']-abs(d1['x2']-d1['x1'])*1.5,3)))
 sofa['b']['len']=round(sofa['c']['x']+SD,3)   # user 10:40: one single sofa, the runs meet flush at the corner
 ty=ey['y']+0.65+0.15+0.35
 for o in furn:
