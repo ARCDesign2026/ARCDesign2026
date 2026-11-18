@@ -251,6 +251,15 @@ desks.forEach(f=>{ let best=null,bd=1e9; DATA.chairs.filter(c=>c.room===f.room).
   [-1,1].forEach(k=>{ const m=monitor(); let px=f.cx, py=f.cy; if(alongX){ px+=back; py+=k*gap; } else { py+=back; px+=k*gap; }
     m.position.set(-px,H.desk,-py); const fx=-(alongX?sgn:0), fz=-(alongX?0:sgn); m.rotation.y=Math.atan2(fx,fz)+Math.PI; m.rotation.y+=k*0.12*(alongX?1:-1)*sgn; scene.add(m); }); });
 
+// user 16:43: an apple on the 2nd desk from the right, bottom row of the middle desks (desk c2)
+{ const f=DATA.furniture.find(o=>o.id==='c2'); if(f){ const ax=-(f.cx+0.35), az=-(f.cy-0.12), y0=H.desk;
+  const ap=new THREE.Mesh(new THREE.SphereGeometry(0.042,24,18),new THREE.MeshStandardMaterial({color:'#c8102e',roughness:0.45})); ap.scale.y=0.9; ap.position.set(ax,y0+0.038,az); ap.castShadow=true; scene.add(ap);
+  const st=new THREE.Mesh(new THREE.CylinderGeometry(0.004,0.005,0.025,8),new THREE.MeshStandardMaterial({color:'#5a3d1e'})); st.position.set(ax,y0+0.085,az); scene.add(st);
+  const lf=new THREE.Mesh(new THREE.SphereGeometry(0.012,10,8),new THREE.MeshStandardMaterial({color:'#3f8f2a'})); lf.scale.set(1.6,0.35,0.8); lf.position.set(ax+0.012,y0+0.092,az); scene.add(lf);
+  // user 16:44: a tissue box next to the apple
+  const tx=ax-0.2; const tb=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.09,0.12),new THREE.MeshStandardMaterial({color:'#e9eef2',roughness:0.8})); tb.position.set(tx,y0+0.045,az); tb.castShadow=true; scene.add(tb);
+  const sl=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.002,0.03),new THREE.MeshStandardMaterial({color:'#8fb3c9'})); sl.position.set(tx,y0+0.091,az); scene.add(sl);
+  const ts=new THREE.Mesh(new THREE.ConeGeometry(0.035,0.07,6),new THREE.MeshStandardMaterial({color:'#ffffff',roughness:1})); ts.position.set(tx,y0+0.125,az); ts.rotation.z=0.25; scene.add(ts); } }
 // measurements: green for site measurements, magenta for overall totals; drawn above everything so they stay readable
 const dims=new THREE.Group(); scene.add(dims);
 function textSprite(txt,color,px=34){ const c=document.createElement('canvas'); const g=c.getContext('2d'); const font=`600 ${px}px "JetBrains Mono", ui-monospace, monospace`; g.font=font; const tw=g.measureText(txt).width; c.width=tw+22; c.height=px+16;
